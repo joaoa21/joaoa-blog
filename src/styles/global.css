@@ -1112,6 +1112,40 @@ html.light .theme-toggle .knob {
   transform: translateX(26px);
 }
 
+/* ============ ATALHO DO PAINEL (só para o autor) ============ */
+.admin-shortcut {
+  position: fixed;
+  bottom: 1.2rem;
+  left: 1.2rem;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem .9rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--glass);
+  color: var(--fg);
+  font-size: .85rem;
+  font-weight: 500;
+  text-decoration: none;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  transition: border-color .2s ease, background-color .2s ease;
+}
+
+.admin-shortcut[hidden] {
+  display: none;
+}
+
+.admin-shortcut i {
+  font-size: .72rem;
+}
+
+.admin-shortcut:hover {
+  border-color: var(--fg);
+}
+
 /* ============ RODAPÉ ============ */
 .site-footer {
   display: flex;

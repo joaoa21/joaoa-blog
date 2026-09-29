@@ -225,9 +225,25 @@ async function openList() {
   try {
     await loadPosts();
     renderList();
+    openFromUrl();
   } catch (error) {
     status('#listStatus', `Não foi possível carregar os posts: ${error.message}`, 'error');
   }
+}
+
+/* atalho vindo do blog: /blog/admin/?post=<slug> abre o post; ?novo abre um em branco */
+let urlHandled = false;
+function openFromUrl() {
+  if (urlHandled) return;
+  urlHandled = true;
+  const params = new URLSearchParams(location.search);
+  if (params.has('novo')) {
+    openEditor(null);
+  } else if (params.get('post')) {
+    const post = posts.find((item) => item.slug === params.get('post'));
+    if (post) openEditor(post);
+  }
+  if (params.toString()) history.replaceState(null, '', location.pathname);
 }
 
 $('#newPost').addEventListener('click', () => openEditor(null));

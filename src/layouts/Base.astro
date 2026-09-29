@@ -93,5 +93,28 @@ const props = Astro.props;
         paint();
       });
     </script>
+    <!-- Atalho do painel: só aparece em navegadores onde o autor entrou no painel.
+         Visitantes não têm o login salvo, então não veem nada. -->
+    <a class="admin-shortcut" id="adminShortcut" href="/blog/admin/" hidden>
+      <i aria-hidden="true" class="fa-solid fa-link"></i>
+      <span>Painel</span>
+    </a>
+    <script>
+      (() => {
+        let token = null;
+        try {
+          token = localStorage.getItem('joaoa-blog-admin-token') || sessionStorage.getItem('joaoa-blog-admin-token');
+        } catch {}
+        if (!token) return;
+        const link = document.getElementById('adminShortcut');
+        const slug = document.querySelector('[data-post-slug]')?.getAttribute('data-post-slug');
+        if (!link) return;
+        if (slug) {
+          link.href = '/blog/admin/?post=' + encodeURIComponent(slug);
+          link.querySelector('span').textContent = 'Editar post';
+        }
+        link.hidden = false;
+      })();
+    </script>
   </body>
 </html>
