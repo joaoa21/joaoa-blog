@@ -7,6 +7,31 @@
   min-height: 100vh;
 }
 
+/* o CSS do blog mostra toda <img> como bloco: aqui "hidden" precisa vencer */
+.admin [hidden] {
+  display: none !important;
+}
+
+/* tudo que é clicável mostra a mãozinha */
+.admin button:not(:disabled),
+.admin select,
+.admin summary,
+.admin label.adm-file,
+.admin .adm-check,
+.admin input[type="checkbox"],
+.admin input[type="date"] {
+  cursor: pointer;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .adm-bar {
   position: sticky;
   top: 0;
@@ -167,6 +192,7 @@
 
 .admin input[type="text"],
 .admin input[type="password"],
+.admin input[type="search"],
 .admin input[type="date"],
 .admin select,
 .admin textarea {
@@ -215,8 +241,22 @@
 
 .adm-row {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: .8rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.3rem;
+}
+
+.admin input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: .6;
+}
+
+.admin select {
+  appearance: none;
+  padding-right: 2.4rem;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 1.1rem) 50%, calc(100% - .8rem) 50%;
+  background-size: .3rem .3rem, .3rem .3rem;
+  background-repeat: no-repeat;
 }
 
 .adm-slug {
@@ -358,8 +398,8 @@
 
 .adm-post {
   display: grid;
-  grid-template-columns: 15rem minmax(0, 1fr) auto;
-  gap: 1.2rem;
+  grid-template-columns: 9rem minmax(0, 1fr) auto;
+  gap: 1.3rem;
   align-items: center;
   width: 100%;
   padding: 1.15rem .4rem;
@@ -386,9 +426,108 @@
 }
 
 .adm-post strong {
-  font-size: 1.05rem;
+  display: block;
+  margin-top: .45rem;
+  font-size: 1.08rem;
   font-weight: 600;
   letter-spacing: -.02em;
+  line-height: 1.25;
+}
+
+.adm-post-text {
+  min-width: 0;
+}
+
+.adm-post-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: .3rem;
+  color: var(--muted);
+  font-size: .86rem;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.adm-thumb {
+  display: grid;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--chip);
+}
+
+.adm-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adm-thumb--type {
+  padding: .5rem;
+  background: linear-gradient(160deg, var(--cover-a), var(--cover-b));
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: .5rem;
+  letter-spacing: .12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.adm-empty {
+  padding: 2.4rem .4rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+/* ============ FILTROS ============ */
+.adm-search,
+.adm-select {
+  display: block;
+  min-width: 0;
+}
+
+.admin .adm-search input {
+  min-height: 44px;
+}
+
+.adm-filters {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) auto auto auto;
+  gap: .6rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.adm-segment {
+  display: flex;
+  gap: .2rem;
+  padding: .25rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--chip);
+}
+
+.adm-segment button {
+  padding: .5rem .75rem;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--soft);
+  font: inherit;
+  font-size: .85rem;
+  white-space: nowrap;
+}
+
+.adm-segment button[aria-pressed="true"] {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.adm-segment button:not([aria-pressed="true"]):hover {
+  color: var(--fg);
 }
 
 /* ============ EDITOR ============ */
@@ -533,9 +672,14 @@
 }
 
 .adm-cover img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.adm-cover:has(img:not([hidden])) {
+  border-style: solid;
 }
 
 .adm-cover p {
@@ -561,12 +705,26 @@
     top: 4.2rem;
   }
 
-  .adm-post {
-    grid-template-columns: minmax(0, 1fr) auto;
+  .adm-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
-  .adm-post-meta {
+  .adm-search,
+  .adm-segment {
     grid-column: 1 / -1;
+  }
+
+  .adm-segment button {
+    flex: 1;
+  }
+
+  .adm-post {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+  }
+
+  .adm-post .adm-badge {
+    grid-column: 2;
+    justify-self: start;
   }
 }
 

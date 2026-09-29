@@ -98,6 +98,60 @@ async function loadPosts() {
   posts = loaded.sort((a, b) => String(b.data.date).localeCompare(String(a.data.date)));
 }
 
+/* ---------- filtros da lista ---------- */
+const filters = { search: '', theme: '', status: '', sort: 'new' };
+
+const normalize = (text) => String(text ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+function formatDate(value) {
+  if (!value) return '';
+  const [year, month, day] = String(value).split('-');
+  return day ? `${day}/${month}/${year}` : String(value);
+}
+
+function visiblePosts() {
+  const query = normalize(filters.search.trim());
+  const list = posts.filter((post) => {
+    const draft = post.data.draft === true;
+    if (filters.status === 'draft' && !draft) return false;
+    if (filters.status === 'live' && draft) return false;
+    if (filters.theme && post.data.category !== filters.theme) return false;
+    if (!query) return true;
+    const haystack = normalize([post.data.title, post.data.description, ...(post.data.tags ?? []), post.slug].join(' '));
+    return haystack.includes(query);
+  });
+
+  const byDate = (a, b) => String(a.data.date).localeCompare(String(b.data.date));
+  if (filters.sort === 'old') list.sort(byDate);
+  else if (filters.sort === 'az') list.sort((a, b) => String(a.data.title).localeCompare(String(b.data.title), 'pt-BR'));
+  else list.sort((a, b) => byDate(b, a));
+  return list;
+}
+
+/** miniatura: a capa salva no repositório ou uma capa tipográfica pequena */
+function thumbnail(post) {
+  const box = document.createElement('span');
+  box.className = 'adm-thumb';
+  box.setAttribute('aria-hidden', 'true');
+  if (post.data.cover) {
+    const image = document.createElement('img');
+    image.src = rawUrl(coverRepoPath(post.data.cover));
+    image.alt = '';
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    image.addEventListener('error', () => {
+      image.remove();
+      box.classList.add('adm-thumb--type');
+      box.textContent = categoryName(post.data.category);
+    });
+    box.append(image);
+  } else {
+    box.classList.add('adm-thumb--type');
+    box.textContent = categoryName(post.data.category);
+  }
+  return box;
+}
+
 function renderList() {
   const list = $('#postList');
   list.replaceChildren();
@@ -105,25 +159,63 @@ function renderList() {
     status('#listStatus', 'Nenhum post ainda. Comece pelo botão "Novo post".');
     return;
   }
-  status('#listStatus', `${posts.length} ${posts.length === 1 ? 'post' : 'posts'}`);
-  for (const post of posts) {
+
+  const shown = visiblePosts();
+  const drafts = posts.filter((post) => post.data.draft === true).length;
+  const summary = `${posts.length} ${posts.length === 1 ? 'post' : 'posts'} · ${posts.length - drafts} publicados · ${drafts} ${drafts === 1 ? 'rascunho' : 'rascunhos'}`;
+  status('#listStatus', shown.length === posts.length ? summary : `${shown.length} de ${posts.length} posts`);
+
+  if (!shown.length) {
+    const empty = document.createElement('li');
+    empty.className = 'adm-empty';
+    empty.textContent = 'Nenhum post com esses filtros.';
+    list.append(empty);
+    return;
+  }
+
+  for (const post of shown) {
     const item = document.createElement('li');
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'adm-post';
     const draft = post.data.draft === true;
     button.innerHTML = `
-      <span class="adm-post-meta mono"><span class="chip"></span><time></time></span>
-      <strong></strong>
+      <span class="adm-post-text">
+        <span class="adm-post-meta mono"><span class="chip"></span><time></time></span>
+        <strong></strong>
+        <span class="adm-post-desc"></span>
+      </span>
       <span class="adm-badge mono" data-state="${draft ? 'draft' : 'live'}">${draft ? 'Rascunho' : 'Publicado'}</span>`;
+    button.prepend(thumbnail(post));
     button.querySelector('.chip').textContent = categoryName(post.data.category);
-    button.querySelector('time').textContent = post.data.date || '';
+    button.querySelector('time').textContent = formatDate(post.data.date);
     button.querySelector('strong').textContent = post.data.title || post.slug;
+    button.querySelector('.adm-post-desc').textContent = post.data.description || '';
     button.addEventListener('click', () => openEditor(post));
     item.append(button);
     list.append(item);
   }
 }
+
+$('#filterSearch').addEventListener('input', (event) => {
+  filters.search = event.target.value;
+  renderList();
+});
+$('#filterTheme').addEventListener('change', (event) => {
+  filters.theme = event.target.value;
+  renderList();
+});
+$('#filterSort').addEventListener('change', (event) => {
+  filters.sort = event.target.value;
+  renderList();
+});
+document.querySelectorAll('[data-status]').forEach((button) => {
+  button.addEventListener('click', () => {
+    filters.status = button.dataset.status;
+    document.querySelectorAll('[data-status]').forEach((other) => other.setAttribute('aria-pressed', String(other === button)));
+    renderList();
+  });
+});
 
 async function openList() {
   show('viewList');
