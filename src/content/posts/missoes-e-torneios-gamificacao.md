@@ -3,10 +3,9 @@ title: "Como desenhar missões e torneios que o jogador quer completar"
 description: "Gamificação não é só coisa de aposta: de e-commerces a apps de delivery, o design faz a mecânica ser entendida, desejada e acompanhada."
 date: 2026-09-29
 category: crm
-tags: ["Gamificação", "CRM", "Fidelidade", "UI"]
+tags: ["Gamificação","CRM","Fidelidade","UI"]
 cover: ../../assets/covers/missoes-e-torneios-gamificacao.webp
 coverAlt: "Card de missão com barra de progresso em 3 de 5 desafios, ao lado de um ranking de torneio com o jogador em terceiro lugar"
-draft: true
 ---
 
 Missões, torneios, rankings, roletas e lojas de pontos são algumas das ferramentas mais fortes de retenção em produtos digitais. Mas a mecânica sozinha não faz ninguém participar. Se a pessoa não entende a proposta em poucos segundos, ela simplesmente passa reto.
