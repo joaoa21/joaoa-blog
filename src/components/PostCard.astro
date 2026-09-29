@@ -35,7 +35,7 @@ const sizes = {
         <span class="chip">{getCategory(category).name}</span>
         {variant !== 'mini' && <time class="mono" datetime={date.toISOString()}>{formatDate(date)}</time>}
       </div>
-      <Heading class="pc-title">{title}</Heading>
+      <Heading class="pc-title"><span class="pc-title-text">{title}</span></Heading>
       {(variant === 'feature' || variant === 'row') && <p class="pc-desc">{description}</p>}
     </div>
   </a>

@@ -453,10 +453,25 @@ a.chip:hover {
   transform: scale(1.03);
 }
 
-.pc-link:hover .pc-title {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: .18em;
+/* sublinhado que se desenha da esquerda para a direita, passando por todas as linhas do título */
+.pc-title-text {
+  padding-bottom: .08em;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  transition: background-size .6s var(--ease-out);
+}
+
+.pc-link:hover .pc-title-text,
+.pc-link:focus-visible .pc-title-text {
+  background-size: 100% 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-title-text {
+    transition: none;
+  }
 }
 
 .pc-meta {
@@ -500,6 +515,8 @@ a.chip:hover {
 .pc--card .pc-title {
   display: -webkit-box;
   overflow: hidden;
+  /* respiro para o sublinhado animado da última linha não ser cortado */
+  padding-bottom: .2em;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
@@ -968,9 +985,18 @@ html.light .prose .astro-code span {
   font-size: .72rem;
 }
 
-.author-links a:hover {
-  text-decoration: underline;
-  text-underline-offset: .2em;
+.author-links a {
+  padding-bottom: .1em;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 1px;
+  transition: background-size .5s var(--ease-out);
+}
+
+.author-links a:hover,
+.author-links a:focus-visible {
+  background-size: 100% 1px;
 }
 
 /* ============ MAIS POSTS E CONTATO ============ */
