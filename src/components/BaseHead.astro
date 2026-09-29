@@ -27,7 +27,20 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
 <meta name="robots" content="index, follow, max-image-preview:large" />
-<meta name="theme-color" content="#0f0f0f" />
+<meta name="theme-color" content="#0f0f0f" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#f2f0eb" media="(prefers-color-scheme: light)" />
+<meta name="color-scheme" content="dark light" />
+
+<!-- Tema do blog: a escolha salva no botão vale; sem escolha, segue o sistema.
+     Roda antes da pintura para a página não piscar no tema errado. -->
+<script is:inline>
+  (() => {
+    let saved = null;
+    try { saved = localStorage.getItem('joaoa-blog-theme'); } catch {}
+    const light = saved ? saved === 'light' : window.matchMedia('(prefers-color-scheme: light)').matches;
+    document.documentElement.classList.toggle('light', light);
+  })();
+</script>
 <meta name="author" content="João Alberto" />
 
 <meta property="og:locale" content="pt_BR" />

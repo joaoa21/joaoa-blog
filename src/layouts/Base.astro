@@ -26,6 +26,9 @@ const props = Astro.props;
           <li><a href="/projetos/">Projetos</a></li>
           <li><a href="/blog/" aria-current="page">Blog</a></li>
         </ul>
+        <button class="theme-toggle" id="themeToggle" type="button" role="switch" aria-checked="false" aria-label="Ativar tema claro">
+          <span class="knob" aria-hidden="true"><i class="fa-solid fa-moon"></i></span>
+        </button>
         <a class="nav-cta" href="/#contato">
           Fale comigo
           <i aria-hidden="true" class="fa-solid fa-arrow-right"></i>
@@ -58,6 +61,37 @@ const props = Astro.props;
       const sync = () => nav?.classList.toggle('scrolled', window.scrollY > 40);
       sync();
       window.addEventListener('scroll', sync, { passive: true });
+
+      // tema claro/escuro: o botão salva a escolha; sem escolha salva, acompanha o sistema
+      const root = document.documentElement;
+      const toggle = document.getElementById('themeToggle');
+      const system = window.matchMedia('(prefers-color-scheme: light)');
+      const KEY = 'joaoa-blog-theme';
+
+      const paint = () => {
+        const light = root.classList.contains('light');
+        toggle?.setAttribute('aria-checked', String(light));
+        toggle?.setAttribute('aria-label', light ? 'Ativar tema escuro' : 'Ativar tema claro');
+        const icon = toggle?.querySelector('.knob i');
+        if (icon) icon.className = light ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+      };
+
+      paint();
+
+      toggle?.addEventListener('click', () => {
+        const light = !root.classList.contains('light');
+        root.classList.toggle('light', light);
+        try { localStorage.setItem(KEY, light ? 'light' : 'dark'); } catch {}
+        paint();
+      });
+
+      system.addEventListener('change', (event) => {
+        let saved = null;
+        try { saved = localStorage.getItem(KEY); } catch {}
+        if (saved) return;
+        root.classList.toggle('light', event.matches);
+        paint();
+      });
     </script>
   </body>
 </html>

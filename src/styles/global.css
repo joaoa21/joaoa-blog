@@ -15,6 +15,12 @@
   --line: rgba(242, 240, 235, .14);
   --chip: rgba(242, 240, 235, .07);
   --glass: rgba(15, 15, 15, .6);
+  --chip-solid: rgba(15, 15, 15, .55);
+  --cover-a: #1a1a1a;
+  --cover-b: #0f0f0f;
+  --cover-glow: rgba(242, 240, 235, .1);
+
+  color-scheme: dark;
 
   --font-sans: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "DM Mono", "JetBrains Mono", monospace;
@@ -24,6 +30,23 @@
   --container: 72rem;
   --reading: 42rem;
   --ease-out: cubic-bezier(.22, 1, .36, 1);
+}
+
+/* ============ TEMA CLARO (só no blog) ============ */
+html.light {
+  --bg: var(--paper);
+  --fg: #121212;
+  --muted: rgba(18, 18, 18, .5);
+  --soft: rgba(18, 18, 18, .72);
+  --line: rgba(18, 18, 18, .14);
+  --chip: rgba(18, 18, 18, .05);
+  --glass: rgba(242, 240, 235, .72);
+  --chip-solid: rgba(242, 240, 235, .7);
+  --cover-a: #e8e5dd;
+  --cover-b: #f2f0eb;
+  --cover-glow: rgba(18, 18, 18, .06);
+
+  color-scheme: light;
 }
 
 *,
@@ -48,6 +71,7 @@ body {
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color .35s ease, color .35s ease;
 }
 
 img {
@@ -314,7 +338,7 @@ button:focus-visible {
   padding: .38rem .6rem;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: rgba(15, 15, 15, .55);
+  background: var(--chip-solid);
   color: var(--fg);
   font-family: var(--font-mono);
   font-size: .6rem;
@@ -396,8 +420,8 @@ a.chip:hover {
   justify-content: space-between;
   padding: 7cqi 7cqi 6cqi;
   background:
-    radial-gradient(circle at 85% 15%, rgba(242, 240, 235, .1), transparent 55%),
-    linear-gradient(160deg, #1a1a1a, #0f0f0f);
+    radial-gradient(circle at 85% 15%, var(--cover-glow), transparent 55%),
+    linear-gradient(160deg, var(--cover-a), var(--cover-b));
 }
 
 .cover-type .mono {
@@ -514,6 +538,12 @@ a.chip:hover {
 }
 
 .pc--feature .pc-body {
+  --fg: var(--paper);
+  --soft: rgba(242, 240, 235, .72);
+  --muted: rgba(242, 240, 235, .5);
+  --line: rgba(242, 240, 235, .14);
+  --chip-solid: rgba(15, 15, 15, .55);
+  color: var(--fg);
   position: absolute;
   right: 0;
   bottom: 0;
@@ -826,6 +856,23 @@ a.chip:hover {
   line-height: 1.65;
 }
 
+/* cores do código: paleta escura ou clara conforme o tema */
+.prose .astro-code,
+.prose .astro-code span {
+  background-color: var(--shiki-dark-bg);
+  color: var(--shiki-dark);
+}
+
+html.light .prose .astro-code,
+html.light .prose .astro-code span {
+  background-color: var(--shiki-light-bg);
+  color: var(--shiki-light);
+}
+
+.prose .astro-code span {
+  background-color: transparent;
+}
+
 .prose pre code {
   padding: 0;
   background: none;
@@ -1028,6 +1075,43 @@ a.chip:hover {
   }
 }
 
+/* ============ SWITCH DE TEMA ============ */
+.theme-toggle {
+  position: relative;
+  flex: 0 0 auto;
+  width: 62px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--chip);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .3s ease, border-color .3s ease;
+}
+
+.theme-toggle:is(:hover, :focus-visible) {
+  border-color: var(--muted);
+}
+
+.theme-toggle .knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 7px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: .72rem;
+  transition: transform .35s var(--ease-out), background-color .3s ease, color .3s ease;
+}
+
+html.light .theme-toggle .knob {
+  transform: translateX(26px);
+}
+
 /* ============ RODAPÉ ============ */
 .site-footer {
   display: flex;
@@ -1057,16 +1141,16 @@ a.chip:hover {
   height: 48px;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid rgba(242, 240, 235, .2);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  color: rgba(242, 240, 235, .85);
+  color: var(--soft);
   text-decoration: none;
   transition: background-color .3s ease, color .3s ease, transform .3s ease;
 }
 
 .to-top:hover {
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--fg);
+  color: var(--bg);
   transform: translateY(-3px);
 }
 
@@ -1158,6 +1242,11 @@ a.chip:hover {
   }
 
   .pc--feature .pc-body {
+    --fg: inherit;
+    --soft: inherit;
+    --muted: inherit;
+    --line: inherit;
+    --chip-solid: inherit;
     position: static;
     padding: 1.1rem 0 0;
   }

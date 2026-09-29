@@ -15,6 +15,6 @@ export default defineConfig({
   integrations: [sitemap()],
   // sem a barra flutuante do modo dev (não aparece no site publicado de qualquer forma)
   devToolbar: { enabled: false },
-  // blocos de código com fundo quase preto, como o resto do site
-  markdown: { shikiConfig: { theme: 'vitesse-dark' } },
+  // blocos de código com as duas paletas; o CSS escolhe conforme o tema do blog
+  markdown: { shikiConfig: { themes: { light: 'vitesse-light', dark: 'vitesse-dark' }, defaultColor: false } },
 });
