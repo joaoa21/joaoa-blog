@@ -1,0 +1,123 @@
+---
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { getPosts, formatDate, postUrl, readingTime, type Post } from '../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, index) => ({
+    params: { slug: post.id },
+    // até dois outros posts para continuar lendo
+    props: { post, others: posts.filter((_, i) => i !== index).slice(0, 2) },
+  }));
+}
+
+interface Props {
+  post: Post;
+  others: Post[];
+}
+
+const { post, others } = Astro.props;
+const { Content } = await render(post);
+const { title, description, date, updated, tags, image, imageAlt } = post.data;
+const site = 'https://joaoa.com.br';
+const url = `${site}${postUrl(post)}`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  '@id': `${url}#post`,
+  headline: title,
+  description,
+  url,
+  mainEntityOfPage: url,
+  datePublished: date.toISOString(),
+  dateModified: (updated ?? date).toISOString(),
+  inLanguage: 'pt-BR',
+  keywords: tags,
+  image: new URL(image ?? '/blog/og/og-blog.jpg', site).href,
+  author: { '@type': 'Person', '@id': `${site}/#person`, name: 'João Alberto', url: `${site}/` },
+  publisher: { '@id': `${site}/#person` },
+  isPartOf: { '@id': `${site}/blog/#blog` },
+};
+---
+
+<Base
+  title={`${title} — João Alberto`}
+  description={description}
+  image={image}
+  imageAlt={imageAlt}
+  type="article"
+  published={date}
+  updated={updated}
+  jsonLd={jsonLd}
+>
+  <article class="post">
+    <a class="back-link mono" href={import.meta.env.BASE_URL}>
+      <i aria-hidden="true" class="fa-solid fa-arrow-left"></i>
+      Todos os posts
+    </a>
+
+    <header class="post-head">
+      <div class="post-meta mono">
+        <span class="rule"></span>
+        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{readingTime(post.body)}</span>
+      </div>
+      <h1 class="post-title">{title}</h1>
+      <p class="post-lead">{description}</p>
+      {tags.length > 0 && (
+        <ul class="tags" aria-label="Assuntos" style="margin-top:1.4rem">
+          {tags.map((tag) => <li>{tag}</li>)}
+        </ul>
+      )}
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <aside class="author" aria-label="Sobre o autor">
+      <img src={`${import.meta.env.BASE_URL}img/joao-192.webp`} alt="Foto de João Alberto" width="64" height="64" loading="lazy" decoding="async" />
+      <div>
+        <strong>João Alberto</strong>
+        <p>Web designer com passagem por agências como diretor de arte e de criação. Hoje trabalha com CRM, email marketing e interfaces, do layout ao código.</p>
+        <div class="author-links">
+          <a href="/projetos/">Ver projetos <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+          <a href="/#contato">Fale comigo <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+          <a href="https://www.linkedin.com/in/joaoa210/" rel="noopener" target="_blank">LinkedIn <i aria-hidden="true" class="fa-solid fa-arrow-up-right-from-square"></i></a>
+        </div>
+      </div>
+    </aside>
+  </article>
+
+  {others.length > 0 && (
+    <section class="more" aria-labelledby="more-title">
+      <h2 id="more-title" class="mono">Continue lendo</h2>
+      <ol class="post-list">
+        {others.map((other) => (
+          <li class="post-row">
+            <a href={postUrl(other)}>
+              <time class="mono" datetime={other.data.date.toISOString()}>{formatDate(other.data.date)}</time>
+              <div>
+                <h2>{other.data.title}</h2>
+                <p>{other.data.description}</p>
+              </div>
+              <span class="arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )}
+
+  <section class="cta" aria-labelledby="cta-title">
+    <h2 id="cta-title">Precisa disso no seu projeto<span class="dot">?</span></h2>
+    <p>Sites, identidades, campanhas e emails, do conceito ao código.</p>
+    <div class="cta-actions">
+      <a class="btn" href="/#contato"><span>Fale comigo</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+      <a class="btn btn--ghost" href="/projetos/"><span>Ver projetos</span><i aria-hidden="true" class="fa-solid fa-layer-group"></i></a>
+    </div>
+  </section>
+</Base>

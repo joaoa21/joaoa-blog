@@ -1,0 +1,60 @@
+---
+/* Moldura de todas as páginas do blog: a mesma navegação e o mesmo
+   rodapé do portfólio, para o leitor não perceber que são dois projetos. */
+import type { ComponentProps } from 'astro/types';
+import BaseHead from '../components/BaseHead.astro';
+import '../styles/global.css';
+
+type Props = ComponentProps<typeof BaseHead>;
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <BaseHead {...props} />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+    <header class="site-nav" id="nav">
+      <a class="nav-logo" href="/" aria-label="João Alberto — página inicial">João Alberto</a>
+      <nav class="nav-menu" aria-label="Navegação principal">
+        <ul class="nav-links">
+          <li><a href="/#topo">Início</a></li>
+          <li><a href="/#sobre">Sobre</a></li>
+          <li><a href="/projetos/">Projetos</a></li>
+          <li><a href="/blog/" aria-current="page">Blog</a></li>
+        </ul>
+        <a class="nav-cta" href="/#contato">
+          Fale comigo
+          <i aria-hidden="true" class="fa-solid fa-arrow-right"></i>
+        </a>
+      </nav>
+    </header>
+
+    <main id="conteudo">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <p>João Alberto © {new Date().getFullYear()} — Design digital &amp; web</p>
+        <p class="mono">joaoa.com.br / blog</p>
+      </div>
+      <nav class="footer-links" aria-label="Redes sociais">
+        <a href="https://github.com/joaoa21" rel="noopener" target="_blank" aria-label="GitHub"><i aria-hidden="true" class="fa-brands fa-github"></i></a>
+        <a href="https://www.instagram.com/joaoalbertoms2/" rel="noopener" target="_blank" aria-label="Instagram"><i aria-hidden="true" class="fa-brands fa-instagram"></i></a>
+        <a href="https://www.linkedin.com/in/joaoa210/" rel="noopener" target="_blank" aria-label="LinkedIn"><i aria-hidden="true" class="fa-brands fa-linkedin-in"></i></a>
+      </nav>
+    </footer>
+
+    <script>
+      // a navegação vira a "pílula" de vidro ao rolar, como no portfólio
+      const nav = document.getElementById('nav');
+      const sync = () => nav?.classList.toggle('scrolled', window.scrollY > 40);
+      sync();
+      window.addEventListener('scroll', sync, { passive: true });
+    </script>
+  </body>
+</html>

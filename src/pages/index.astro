@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPosts, formatDate, postUrl } from '../lib/posts';
+
+const posts = await getPosts();
+const site = 'https://joaoa.com.br';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  '@id': `${site}/blog/#blog`,
+  url: `${site}/blog/`,
+  name: 'Blog de João Alberto',
+  description: 'Design digital, email HTML, CRM, identidade visual e web, na prática.',
+  inLanguage: 'pt-BR',
+  author: { '@id': `${site}/#person` },
+  publisher: { '@id': `${site}/#person` },
+  isPartOf: { '@id': `${site}/#website` },
+  blogPost: posts.map((post) => ({
+    '@type': 'BlogPosting',
+    headline: post.data.title,
+    url: `${site}${postUrl(post)}`,
+    datePublished: post.data.date.toISOString(),
+  })),
+};
+---
+
+<Base
+  title="Blog — João Alberto"
+  description="Design digital, email HTML, CRM, identidade visual e web, na prática: bastidores de projetos e soluções do dia a dia de um web designer."
+  jsonLd={jsonLd}
+>
+  <header class="blog-head container">
+    <div class="kicker mono"><span class="rule"></span>Blog</div>
+    <h1 class="blog-title">Blog<span class="dot">.</span></h1>
+    <p class="blog-desc">
+      Design digital, email HTML, CRM, identidade visual e web, na prática: bastidores de projetos e soluções do dia a dia.
+    </p>
+  </header>
+
+  <section class="container" aria-label="Posts">
+    {posts.length ? (
+      <ol class="post-list" reversed>
+        {posts.map((post) => (
+          <li class="post-row">
+            <a href={postUrl(post)}>
+              <time class="mono" datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+              <div>
+                <h2>{post.data.title}</h2>
+                <p>{post.data.description}</p>
+                {post.data.tags.length > 0 && (
+                  <ul class="tags" aria-label="Assuntos">
+                    {post.data.tags.map((tag) => <li>{tag}</li>)}
+                  </ul>
+                )}
+              </div>
+              <span class="arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <p class="empty">Os primeiros posts estão a caminho.</p>
+    )}
+  </section>
+
+  <section class="cta" aria-labelledby="cta-title">
+    <h2 id="cta-title">Tem um projeto em mente<span class="dot">?</span></h2>
+    <p>Sites, identidades, campanhas e emails, do conceito ao código.</p>
+    <div class="cta-actions">
+      <a class="btn" href="/#contato"><span>Fale comigo</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+      <a class="btn btn--ghost" href="/projetos/"><span>Ver projetos</span><i aria-hidden="true" class="fa-solid fa-layer-group"></i></a>
+    </div>
+  </section>
+</Base>
