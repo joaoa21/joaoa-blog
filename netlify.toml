@@ -15,3 +15,10 @@
   for = "/blog/_astro/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# Painel de publicação: fora de buscadores
+[[headers]]
+  for = "/blog/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-cache"

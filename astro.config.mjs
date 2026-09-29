@@ -12,7 +12,8 @@ export default defineConfig({
   trailingSlash: 'always',
   outDir: './dist/blog',
   build: { format: 'directory' },
-  integrations: [sitemap()],
+  // o painel (/blog/admin/) fica fora do sitemap
+  integrations: [sitemap({ filter: (page) => !page.includes('/blog/admin/') })],
   // sem a barra flutuante do modo dev (não aparece no site publicado de qualquer forma)
   devToolbar: { enabled: false },
   // blocos de código com as duas paletas; o CSS escolhe conforme o tema do blog

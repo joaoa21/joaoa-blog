@@ -1,0 +1,189 @@
+---
+/* Painel de publicação do blog: /blog/admin/
+   Roda só no navegador e salva direto no GitHub (sem servidor próprio).
+   Fica fora do Google (noindex) e fora do sitemap. */
+import '../../styles/global.css';
+import '../../styles/admin.css';
+import { CATEGORIES } from '../../lib/categories';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Painel do blog — João Alberto</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+    <link rel="stylesheet" href={`${base}/css/fonts.css`} />
+    <link rel="stylesheet" href={`${base}/css/icons.css`} />
+    <script is:inline>
+      (() => {
+        let saved = null;
+        try { saved = localStorage.getItem('joaoa-blog-theme'); } catch {}
+        const light = saved ? saved === 'light' : window.matchMedia('(prefers-color-scheme: light)').matches;
+        document.documentElement.classList.toggle('light', light);
+      })();
+    </script>
+  </head>
+  <body class="admin" data-categories={JSON.stringify(CATEGORIES)}>
+    <header class="adm-bar">
+      <a class="nav-logo" href={`${base}/`}>João Alberto <span class="adm-tag mono">Painel do blog</span></a>
+      <div class="adm-bar-actions">
+        <a class="adm-link" href={`${base}/`} target="_blank" rel="noopener">Ver blog <i aria-hidden="true" class="fa-solid fa-arrow-up-right-from-square"></i></a>
+        <button class="adm-link" id="logout" type="button" hidden>Sair</button>
+      </div>
+    </header>
+
+    <main class="adm-main">
+      <!-- ============ ENTRAR ============ -->
+      <section class="adm-view adm-login" id="viewLogin" hidden>
+        <p class="kicker mono"><span class="rule"></span>Acesso</p>
+        <h1 class="adm-title">Painel do blog<span class="dot">.</span></h1>
+        <p class="adm-text">
+          Os posts são salvos direto no repositório <strong>joaoa21/joaoa-blog</strong> do GitHub, e o Netlify publica em cerca de um minuto.
+          Para entrar, cole um token do GitHub com permissão só nesse repositório.
+        </p>
+        <details class="adm-help">
+          <summary>Como criar o token</summary>
+          <ol>
+            <li>Abra <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub → Fine-grained tokens → Generate new token</a>.</li>
+            <li>Em <em>Repository access</em>, escolha <strong>Only select repositories</strong> → <strong>joaoa-blog</strong>.</li>
+            <li>Em <em>Permissions → Repository permissions</em>, deixe <strong>Contents: Read and write</strong>.</li>
+            <li>Escolha uma validade (ex.: 1 ano), gere e copie o token.</li>
+          </ol>
+        </details>
+        <form class="adm-login-form" id="loginForm">
+          <label class="adm-field">
+            <span class="mono">Token do GitHub</span>
+            <input id="token" type="password" autocomplete="off" spellcheck="false" required placeholder="github_pat_…" />
+          </label>
+          <label class="adm-check">
+            <input id="remember" type="checkbox" />
+            <span>Lembrar neste navegador (use só no seu computador)</span>
+          </label>
+          <button class="btn" type="submit"><span>Entrar</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></button>
+          <p class="adm-error" id="loginError" role="alert"></p>
+        </form>
+      </section>
+
+      <!-- ============ LISTA ============ -->
+      <section class="adm-view" id="viewList" hidden>
+        <div class="adm-list-head">
+          <div>
+            <p class="kicker mono"><span class="rule"></span>Posts</p>
+            <h1 class="adm-title">Seus posts<span class="dot">.</span></h1>
+          </div>
+          <button class="btn" id="newPost" type="button"><span>Novo post</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></button>
+        </div>
+        <p class="adm-status" id="listStatus" role="status"></p>
+        <ul class="adm-list" id="postList"></ul>
+      </section>
+
+      <!-- ============ EDITOR ============ -->
+      <section class="adm-view" id="viewEditor" hidden>
+        <form id="editor" class="adm-editor" novalidate>
+          <div class="adm-editor-top">
+            <button class="adm-link" id="backToList" type="button"><i aria-hidden="true" class="fa-solid fa-arrow-left"></i> Todos os posts</button>
+            <span class="adm-badge mono" id="stateBadge"></span>
+            <div class="adm-editor-actions">
+              <button class="adm-btn adm-btn--danger" id="deletePost" type="button" hidden>Excluir</button>
+              <button class="adm-btn" id="saveDraft" type="button">Salvar rascunho</button>
+              <button class="btn" id="publish" type="button"><span>Publicar</span><i aria-hidden="true" class="fa-solid fa-arrow-up"></i></button>
+            </div>
+          </div>
+          <p class="adm-status" id="editorStatus" role="status"></p>
+
+          <div class="adm-editor-grid">
+            <div class="adm-editor-main">
+              <textarea class="adm-title-input" id="title" rows="1" placeholder="Título do post" aria-label="Título" required></textarea>
+
+              <div class="adm-tabs" role="tablist" aria-label="Texto do post">
+                <button type="button" role="tab" id="tabWrite" aria-selected="true" aria-controls="panelWrite">Escrever</button>
+                <button type="button" role="tab" id="tabPreview" aria-selected="false" aria-controls="panelPreview">Pré-visualizar</button>
+              </div>
+
+              <div id="panelWrite" role="tabpanel" aria-labelledby="tabWrite">
+                <div class="adm-toolbar" role="toolbar" aria-label="Formatação">
+                  <button type="button" data-md="h2" title="Título de seção">H2</button>
+                  <button type="button" data-md="h3" title="Subtítulo">H3</button>
+                  <button type="button" data-md="bold" title="Negrito"><strong>B</strong></button>
+                  <button type="button" data-md="italic" title="Itálico"><em>I</em></button>
+                  <button type="button" data-md="link" title="Link"><i aria-hidden="true" class="fa-solid fa-link"></i></button>
+                  <button type="button" data-md="list" title="Lista">Lista</button>
+                  <button type="button" data-md="check" title="Checklist">Checklist</button>
+                  <button type="button" data-md="quote" title="Citação">Citação</button>
+                  <button type="button" data-md="code" title="Código na linha">`código`</button>
+                  <button type="button" data-md="block" title="Bloco de código">Bloco de código</button>
+                </div>
+                <textarea id="body" class="adm-body" spellcheck="true" placeholder="Escreva o post em Markdown…"></textarea>
+              </div>
+
+              <div id="panelPreview" role="tabpanel" aria-labelledby="tabPreview" hidden>
+                <div class="prose adm-preview" id="preview"></div>
+              </div>
+            </div>
+
+            <aside class="adm-editor-side" aria-label="Detalhes do post">
+              <label class="adm-field">
+                <span class="mono">Endereço</span>
+                <div class="adm-slug"><span>/blog/</span><input id="slug" type="text" spellcheck="false" /><span>/</span></div>
+                <small id="slugHint">Gerado a partir do título. Depois de publicado, não muda.</small>
+              </label>
+
+              <label class="adm-field">
+                <span class="mono">Resumo <em id="descCount">0/170</em></span>
+                <textarea id="description" rows="4" maxlength="170" placeholder="Aparece no Google, nas prévias de link e nos cards do blog."></textarea>
+              </label>
+
+              <div class="adm-row">
+                <label class="adm-field">
+                  <span class="mono">Data</span>
+                  <input id="date" type="date" required />
+                </label>
+                <label class="adm-field">
+                  <span class="mono">Tema</span>
+                  <select id="category" required>
+                    {CATEGORIES.map((category) => <option value={category.slug}>{category.name}</option>)}
+                  </select>
+                </label>
+              </div>
+
+              <label class="adm-field">
+                <span class="mono">Tags</span>
+                <input id="tags" type="text" placeholder="Separadas por vírgula" />
+              </label>
+
+              <div class="adm-field">
+                <span class="mono">Capa</span>
+                <div class="adm-cover" id="coverBox">
+                  <img id="coverPreview" alt="" hidden />
+                  <p id="coverEmpty">Sem capa: o post usa a capa tipográfica.</p>
+                </div>
+                <div class="adm-cover-actions">
+                  <label class="adm-btn adm-file">
+                    <input id="coverFile" type="file" accept="image/png,image/jpeg,image/webp" />
+                    Escolher imagem
+                  </label>
+                  <button class="adm-btn" id="coverRemove" type="button" hidden>Remover</button>
+                </div>
+                <small>Ideal 16:10 (ex.: 3200×2000). Convertida para WebP antes de enviar.</small>
+                <input id="coverAlt" type="text" placeholder="Descrição da capa (acessibilidade)" />
+              </div>
+
+              <label class="adm-check">
+                <input id="featured" type="checkbox" />
+                <span>Fixar como destaque no topo do blog</span>
+              </label>
+            </aside>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script src="../../scripts/admin/app.js"></script>
+  </body>
+</html>

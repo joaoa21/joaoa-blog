@@ -4,7 +4,16 @@ Blog em [Astro](https://astro.build) servido em **joaoa.com.br/blog/**.
 
 É um projeto separado do portfólio (que continua em HTML puro), publicado como um segundo site no Netlify. O portfólio faz proxy de `/blog/*` para este site, então leitores e Google enxergam tudo no mesmo domínio.
 
-## Escrever um post
+## Painel de publicação
+
+Em **joaoa.com.br/blog/admin/** dá para criar, editar, publicar e excluir posts pelo navegador, sem servidor: a página salva direto neste repositório pela API do GitHub (um commit por publicação, com texto e capa juntos) e o Netlify publica em cerca de 1 minuto.
+
+- Acesso com um *fine-grained token* do GitHub com acesso só a `joaoa-blog` e permissão **Contents: Read and write**. O passo a passo está na própria página.
+- O token fica só no seu navegador (na sessão, ou salvo se marcar "Lembrar").
+- A capa enviada é convertida para WebP (até 3200 px) antes de subir.
+- O painel fica fora do Google e do sitemap.
+
+## Escrever um post (pelo código)
 
 1. Crie um arquivo em `src/content/posts/`. O nome vira o endereço: `meu-post.md` → `joaoa.com.br/blog/meu-post/`.
 2. Comece com o cabeçalho:
