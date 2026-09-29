@@ -6,6 +6,7 @@
 import { marked } from 'marked';
 import { createClient, rawUrl, POSTS_DIR, COVERS_DIR } from './github.js';
 import { parsePost, serializePost, slugify } from './frontmatter.js';
+import { enhanceSelect } from './select.js';
 
 const $ = (selector) => document.querySelector(selector);
 const TOKEN_KEY = 'joaoa-blog-admin-token';
@@ -552,6 +553,8 @@ $('#deletePost').addEventListener('click', async () => {
 });
 
 /* ---------- início ---------- */
+document.querySelectorAll('.admin select').forEach(enhanceSelect);
+
 (async () => {
   const token = savedToken();
   if (!token) {
