@@ -3,10 +3,9 @@ title: "WebP, PNG ou JPG: qual formato usar em cada imagem do site"
 description: "Quando cada formato vale a pena, como reduzir o peso sem perder qualidade e por que o email é a exceção à regra do WebP."
 date: 2026-09-29
 category: web
-tags: ["Imagens", "Performance", "Web"]
+tags: ["Imagens","Performance","Web"]
 cover: ../../assets/covers/webp-png-ou-jpg.webp
 coverAlt: "A mesma imagem em três formatos: PNG com 1,4 MB, JPG com 312 KB e WebP com 196 KB, destacado como o mais leve"
-draft: true
 ---
 
 A imagem é quase sempre o arquivo mais pesado de uma página. Um banner exportado no formato errado pode pesar mais que todo o resto do site junto, e isso aparece direto no tempo de carregamento, na nota do PageSpeed e na paciência de quem abre pelo celular.
