@@ -525,7 +525,8 @@ a.chip:hover {
 }
 
 .pc--feature .cover:has(.cover-type) + .pc-body .pc-title,
-.pc--feature .cover:has(.cover-type) + .pc-body .pc-desc {
+.pc--feature .cover:has(.cover-type) + .pc-body .pc-desc,
+.pc--feature .cover:has(.cover-type) + .pc-body .pc-meta {
   position: absolute;
   width: 1px;
   height: 1px;
