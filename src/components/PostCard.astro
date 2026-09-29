@@ -1,0 +1,42 @@
+---
+/* Card de post em quatro formatos:
+   feature — destaque grande, título sobre a capa
+   card    — capa em cima, título embaixo (grades)
+   row     — capa pequena ao lado, com resumo (listas por tema)
+   mini    — só capa pequena e título (colunas laterais) */
+import Cover from './Cover.astro';
+import { formatDate, postUrl, type Post } from '../lib/posts';
+import { getCategory } from '../lib/categories';
+
+interface Props {
+  post: Post;
+  variant?: 'feature' | 'card' | 'row' | 'mini';
+  eager?: boolean;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { post, variant = 'card', eager = false, headingLevel = 'h3' } = Astro.props;
+const { title, description, date, category } = post.data;
+const Heading = headingLevel;
+
+const sizes = {
+  feature: '(max-width: 760px) 100vw, 60vw',
+  card: '(max-width: 760px) 100vw, (max-width: 1100px) 50vw, 25vw',
+  row: '(max-width: 760px) 40vw, 220px',
+  mini: '96px',
+}[variant];
+---
+
+<article class={`pc pc--${variant}`}>
+  <a href={postUrl(post)} class="pc-link">
+    <Cover post={post} sizes={sizes} eager={eager} />
+    <div class="pc-body">
+      <div class="pc-meta">
+        <span class="chip">{getCategory(category).name}</span>
+        {variant !== 'mini' && <time class="mono" datetime={date.toISOString()}>{formatDate(date)}</time>}
+      </div>
+      <Heading class="pc-title">{title}</Heading>
+      {(variant === 'feature' || variant === 'row') && <p class="pc-desc">{description}</p>}
+    </div>
+  </a>
+</article>

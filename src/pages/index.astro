@@ -1,8 +1,20 @@
 ---
+/* Home do blog em formato de revista. O layout cresce com o conteúdo:
+   1 post → só o destaque; até 5 → destaque + laterais; mais → "Mais recentes";
+   temas com 2+ posts ganham seção própria. */
 import Base from '../layouts/Base.astro';
-import { getPosts, formatDate, postUrl } from '../lib/posts';
+import PostCard from '../components/PostCard.astro';
+import ThemeBar from '../components/ThemeBar.astro';
+import { getPosts, pickFeatured, groupByCategory, postUrl } from '../lib/posts';
+import { categoryUrl } from '../lib/categories';
 
 const posts = await getPosts();
+const featured = pickFeatured(posts);
+const rest = posts.filter((post) => post !== featured);
+const side = rest.slice(0, 4);
+const latest = rest.slice(4, 12);
+const groups = groupByCategory(posts);
+const themeSections = groups.filter((group) => group.posts.length >= 2);
 const site = 'https://joaoa.com.br';
 
 const jsonLd = {
@@ -38,31 +50,46 @@ const jsonLd = {
     </p>
   </header>
 
-  <section class="container" aria-label="Posts">
-    {posts.length ? (
-      <ol class="post-list" reversed>
-        {posts.map((post) => (
-          <li class="post-row">
-            <a href={postUrl(post)}>
-              <time class="mono" datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
-              <div>
-                <h2>{post.data.title}</h2>
-                <p>{post.data.description}</p>
-                {post.data.tags.length > 0 && (
-                  <ul class="tags" aria-label="Assuntos">
-                    {post.data.tags.map((tag) => <li>{tag}</li>)}
-                  </ul>
-                )}
-              </div>
-              <span class="arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
-            </a>
-          </li>
-        ))}
-      </ol>
-    ) : (
-      <p class="empty">Os primeiros posts estão a caminho.</p>
-    )}
-  </section>
+  {groups.length > 0 && <ThemeBar groups={groups} />}
+
+  {featured ? (
+    <>
+      <section class={`hero container${side.length ? '' : ' hero--solo'}`} aria-label="Destaques">
+        <PostCard post={featured} variant="feature" eager headingLevel="h2" />
+        {side.length > 0 && (
+          <div class="hero-side">
+            {side.map((post) => <PostCard post={post} variant="card" />)}
+          </div>
+        )}
+      </section>
+
+      {latest.length > 0 && (
+        <section class="block container" aria-labelledby="latest-title">
+          <div class="block-head">
+            <h2 id="latest-title" class="mono">Mais recentes</h2>
+          </div>
+          <div class="grid">
+            {latest.map((post) => <PostCard post={post} variant="card" />)}
+          </div>
+        </section>
+      )}
+
+      {themeSections.map((group) => (
+        <section class="block container" aria-labelledby={`tema-${group.slug}`}>
+          <div class="block-head">
+            <h2 id={`tema-${group.slug}`} class="mono">{group.name}</h2>
+            <a href={categoryUrl(group.slug)} class="see-all">Ver tudo <i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+          </div>
+          <div class="rows">
+            {group.posts.slice(0, 4).map((post) => <PostCard post={post} variant="row" />)}
+          </div>
+        </section>
+      ))}
+
+    </>
+  ) : (
+    <p class="empty container">Os primeiros posts estão a caminho.</p>
+  )}
 
   <section class="cta" aria-labelledby="cta-title">
     <h2 id="cta-title">Tem um projeto em mente<span class="dot">?</span></h2>

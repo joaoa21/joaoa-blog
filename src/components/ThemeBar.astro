@@ -1,0 +1,21 @@
+---
+/* Barra de temas: "Todos" + os temas que já têm posts. */
+import { categoryUrl, type CategorySlug } from '../lib/categories';
+
+interface Props {
+  groups: { slug: CategorySlug; name: string }[];
+  current?: CategorySlug;
+}
+
+const { groups, current } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<nav class="themes container" aria-label="Temas do blog">
+  <ul>
+    <li><a href={base} aria-current={current ? undefined : 'page'}>Todos</a></li>
+    {groups.map((group) => (
+      <li><a href={categoryUrl(group.slug)} aria-current={current === group.slug ? 'page' : undefined}>{group.name}</a></li>
+    ))}
+  </ul>
+</nav>

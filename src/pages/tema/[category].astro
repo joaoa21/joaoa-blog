@@ -1,0 +1,74 @@
+---
+/* Página de um tema: /blog/tema/<slug>/ — só é gerada para temas com posts. */
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import ThemeBar from '../../components/ThemeBar.astro';
+import { getPosts, groupByCategory, postUrl } from '../../lib/posts';
+import { categoryUrl, type CategorySlug } from '../../lib/categories';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const groups = groupByCategory(posts);
+  return groups.map((group) => ({ params: { category: group.slug }, props: { group, groups } }));
+}
+
+interface Props {
+  group: ReturnType<typeof groupByCategory>[number];
+  groups: ReturnType<typeof groupByCategory>;
+}
+
+const { group, groups } = Astro.props;
+const site = 'https://joaoa.com.br';
+const [first, ...others] = group.posts;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  url: `${site}${categoryUrl(group.slug as CategorySlug)}`,
+  name: `${group.name} — Blog de João Alberto`,
+  description: group.description,
+  inLanguage: 'pt-BR',
+  isPartOf: { '@id': `${site}/blog/#blog` },
+  hasPart: group.posts.map((post) => ({ '@type': 'BlogPosting', headline: post.data.title, url: `${site}${postUrl(post)}` })),
+};
+---
+
+<Base title={`${group.name} — Blog de João Alberto`} description={group.description} jsonLd={jsonLd}>
+  <header class="blog-head blog-head--theme container">
+    <a class="back-link mono" href={import.meta.env.BASE_URL}>
+      <i aria-hidden="true" class="fa-solid fa-arrow-left"></i>
+      Todos os posts
+    </a>
+    <div class="kicker mono"><span class="rule"></span>Tema</div>
+    <h1 class="blog-title blog-title--theme">{group.name}<span class="dot">.</span></h1>
+    <p class="blog-desc">{group.description}</p>
+  </header>
+
+  <ThemeBar groups={groups} current={group.slug as CategorySlug} />
+
+  <section class={`hero container${others.length ? '' : ' hero--solo'}`} aria-label={`Posts de ${group.name}`}>
+    <PostCard post={first} variant="feature" eager headingLevel="h2" />
+    {others.length > 0 && (
+      <div class="hero-side">
+        {others.slice(0, 4).map((post) => <PostCard post={post} variant="card" />)}
+      </div>
+    )}
+  </section>
+
+  {others.length > 4 && (
+    <section class="block container" aria-label="Mais posts">
+      <div class="grid">
+        {others.slice(4).map((post) => <PostCard post={post} variant="card" />)}
+      </div>
+    </section>
+  )}
+
+  <section class="cta" aria-labelledby="cta-title">
+    <h2 id="cta-title">Precisa disso no seu projeto<span class="dot">?</span></h2>
+    <p>Sites, identidades, campanhas e emails, do conceito ao código.</p>
+    <div class="cta-actions">
+      <a class="btn" href="/#contato"><span>Fale comigo</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></a>
+      <a class="btn btn--ghost" href="/projetos/"><span>Ver projetos</span><i aria-hidden="true" class="fa-solid fa-layer-group"></i></a>
+    </div>
+  </section>
+</Base>

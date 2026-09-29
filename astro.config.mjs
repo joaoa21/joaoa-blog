@@ -13,6 +13,8 @@ export default defineConfig({
   outDir: './dist/blog',
   build: { format: 'directory' },
   integrations: [sitemap()],
+  // sem a barra flutuante do modo dev (não aparece no site publicado de qualquer forma)
+  devToolbar: { enabled: false },
   // blocos de código com fundo quase preto, como o resto do site
   markdown: { shikiConfig: { theme: 'vitesse-dark' } },
 });

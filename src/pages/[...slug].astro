@@ -1,14 +1,23 @@
 ---
 import { render } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import PostCard from '../components/PostCard.astro';
 import { getPosts, formatDate, postUrl, readingTime, type Post } from '../lib/posts';
+import { getCategory, categoryUrl } from '../lib/categories';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
   return posts.map((post, index) => ({
     params: { slug: post.id },
-    // até dois outros posts para continuar lendo
-    props: { post, others: posts.filter((_, i) => i !== index).slice(0, 2) },
+    // até três outros posts para continuar lendo, primeiro os do mesmo tema
+    props: {
+      post,
+      others: posts
+        .filter((_, i) => i !== index)
+        .sort((a, b) => Number(b.data.category === post.data.category) - Number(a.data.category === post.data.category))
+        .slice(0, 3),
+    },
   }));
 }
 
@@ -19,9 +28,14 @@ interface Props {
 
 const { post, others } = Astro.props;
 const { Content } = await render(post);
-const { title, description, date, updated, tags, image, imageAlt } = post.data;
+const { title, description, date, updated, tags, image, imageAlt, cover, coverAlt, category } = post.data;
+const theme = getCategory(category);
 const site = 'https://joaoa.com.br';
 const url = `${site}${postUrl(post)}`;
+
+// imagem de compartilhamento: a definida no post; senão, a capa recortada em 1200x630
+const shareImage = image ?? (cover ? (await getImage({ src: cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' })).src : undefined);
+const shareAlt = imageAlt ?? coverAlt ?? title;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -35,7 +49,8 @@ const jsonLd = {
   dateModified: (updated ?? date).toISOString(),
   inLanguage: 'pt-BR',
   keywords: tags,
-  image: new URL(image ?? '/blog/og/og-blog.jpg', site).href,
+  image: new URL(shareImage ?? '/blog/og/og-blog.jpg', site).href,
+  articleSection: theme.name,
   author: { '@type': 'Person', '@id': `${site}/#person`, name: 'João Alberto', url: `${site}/` },
   publisher: { '@id': `${site}/#person` },
   isPartOf: { '@id': `${site}/blog/#blog` },
@@ -45,8 +60,8 @@ const jsonLd = {
 <Base
   title={`${title} — João Alberto`}
   description={description}
-  image={image}
-  imageAlt={imageAlt}
+  image={shareImage}
+  imageAlt={shareAlt}
   type="article"
   published={date}
   updated={updated}
@@ -60,7 +75,7 @@ const jsonLd = {
 
     <header class="post-head">
       <div class="post-meta mono">
-        <span class="rule"></span>
+        <a class="chip" href={categoryUrl(category)}>{theme.name}</a>
         <time datetime={date.toISOString()}>{formatDate(date)}</time>
         <span aria-hidden="true">·</span>
         <span>{readingTime(post.body)}</span>
@@ -73,6 +88,19 @@ const jsonLd = {
         </ul>
       )}
     </header>
+
+    {cover && (
+      <figure class="post-cover">
+        <Image
+          src={cover}
+          alt={coverAlt ?? ''}
+          widths={[800, 1200, 1600].filter((w) => w <= cover.width)}
+          sizes="(max-width: 1040px) 100vw, 60rem"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </figure>
+    )}
 
     <div class="prose">
       <Content />
@@ -95,22 +123,18 @@ const jsonLd = {
   {others.length > 0 && (
     <section class="more" aria-labelledby="more-title">
       <h2 id="more-title" class="mono">Continue lendo</h2>
-      <ol class="post-list">
-        {others.map((other) => (
-          <li class="post-row">
-            <a href={postUrl(other)}>
-              <time class="mono" datetime={other.data.date.toISOString()}>{formatDate(other.data.date)}</time>
-              <div>
-                <h2>{other.data.title}</h2>
-                <p>{other.data.description}</p>
-              </div>
-              <span class="arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
-            </a>
-          </li>
-        ))}
-      </ol>
+      <div class="grid grid--3">
+        {others.map((other) => <PostCard post={other} variant="card" />)}
+      </div>
     </section>
   )}
+
+  <section class="back-section" aria-label="Voltar para a lista de posts">
+    <a class="btn-sweep btn-sweep-back" href={import.meta.env.BASE_URL}>
+      <span>Voltar ao blog</span>
+      <span aria-hidden="true" class="sweep-ic"><i class="fa-solid fa-arrow-left"></i></span>
+    </a>
+  </section>
 
   <section class="cta" aria-labelledby="cta-title">
     <h2 id="cta-title">Precisa disso no seu projeto<span class="dot">?</span></h2>

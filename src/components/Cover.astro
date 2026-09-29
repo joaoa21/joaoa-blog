@@ -1,0 +1,35 @@
+---
+/* Capa de um post. Com imagem: versão otimizada (WebP, tamanhos responsivos).
+   Sem imagem: capa tipográfica no estilo do site (tema + título). */
+import { Image } from 'astro:assets';
+import type { Post } from '../lib/posts';
+import { getCategory } from '../lib/categories';
+
+interface Props {
+  post: Post;
+  sizes: string;
+  eager?: boolean;
+}
+
+const { post, sizes, eager = false } = Astro.props;
+const { cover, coverAlt, title, category } = post.data;
+---
+
+<div class="cover">
+  {cover ? (
+    <Image
+      src={cover}
+      alt={coverAlt ?? ''}
+      widths={[480, 800, 1200, 1600].filter((w) => w <= cover.width)}
+      sizes={sizes}
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : 'auto'}
+      decoding="async"
+    />
+  ) : (
+    <div class="cover-type" aria-hidden="true">
+      <span class="mono">{getCategory(category).name}</span>
+      <strong>{title}<span class="dot">.</span></strong>
+    </div>
+  )}
+</div>
