@@ -43,6 +43,7 @@ Cada push na `main` publica no Netlify automaticamente (`netlify.toml` já confi
 - `sitemap-index.xml` e `rss.xml` gerados no build.
 - Tempo de leitura, "Continue lendo", caixa do autor e chamada para contato em cada post.
 - Página rápida: sem JavaScript de animação, só CSS.
+- Página 404 igual à do portfólio: `scripts/fetch-404.mjs` baixa `joaoa.com.br/404.html` a cada build.
 
 ## Configuração (uma vez)
 
