@@ -3,11 +3,9 @@ title: "Bastidores: como nasceu a identidade da campanha OAB/PE 2024"
 description: "Do conceito às aplicações: como uma única linguagem visual deu conta de redes sociais, impressos, site e ações de rua em uma campanha."
 date: 2026-09-29
 category: bastidores
-tags: ["Identidade visual", "Campanha", "Case"]
+tags: ["Identidade visual","Campanha","Case"]
 draft: true
 ---
-
-> **Rascunho para completar.** Os trechos entre colchetes [assim] são lacunas que só você pode preencher com a história real do projeto. Apague este aviso antes de publicar.
 
 Em 2024, criei a identidade visual e os principais materiais da campanha à presidência da OAB Pernambuco. Foi um projeto em que a mesma linguagem precisava funcionar em formatos muito diferentes: posts, stories, WhatsApp, email, site, folders, adesivos, crachás, mural de comitê e ações de rua.
 
