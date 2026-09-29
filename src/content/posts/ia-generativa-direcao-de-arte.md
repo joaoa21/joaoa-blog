@@ -3,10 +3,9 @@ title: "IA generativa na direção de arte: onde ajuda e onde atrapalha"
 description: "Como usar IA para criar imagens e key visuals sem perder a consistência da marca: onde ela acelera, onde tropeça e um fluxo que funciona."
 date: 2026-09-29
 category: design
-tags: ["IA generativa", "Direção de arte", "Key visual"]
+tags: ["IA generativa","Direção de arte","Key visual"]
 cover: ../../assets/covers/ia-generativa-direcao-de-arte.webp
 coverAlt: "Um prompt de key visual, uma grade com quatro variações geradas por IA com uma escolhida em destaque e um guia da marca com paleta e regras"
-draft: true
 ---
 
 A IA generativa entrou de vez no dia a dia de quem cria imagens para marcas. Ela resolve em minutos coisas que antes levavam um dia, mas também cria problemas novos, principalmente quando a campanha tem dezenas de peças e todas precisam parecer da mesma família.
