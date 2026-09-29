@@ -3,10 +3,9 @@ title: "Email no modo escuro: como evitar que sua campanha quebre"
 description: "Logo que some, texto ilegível, botão que muda de cor: por que o modo escuro mexe no seu email e o que fazer para ele ficar bom nos dois temas."
 date: 2026-09-29
 category: email-html
-tags: ["Email HTML", "CRM", "Modo escuro"]
+tags: ["Email HTML","CRM","Modo escuro"]
 cover: ../../assets/covers/email-modo-escuro.webp
 coverAlt: "O mesmo email no modo claro e no modo escuro; na versão escura, a logo preta quase desaparece no fundo"
-draft: true
 ---
 
 Boa parte das pessoas usa o celular no modo escuro, e muitos programas de email aplicam esse tema às mensagens também. O resultado nem sempre é o que você desenhou: a logo preta some no fundo escuro, o texto cinza fica ilegível, o botão troca de cor e aquela imagem com fundo branco vira um retângulo brilhando no meio da tela.
