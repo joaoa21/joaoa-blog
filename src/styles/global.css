@@ -490,6 +490,13 @@ a.chip:hover {
   padding-top: .95rem;
 }
 
+/* nos cards, a data fica sempre embaixo do tema (antes ia para o lado quando cabia) */
+.pc--card .pc-meta {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .55rem;
+}
+
 .pc--card .pc-title {
   display: -webkit-box;
   overflow: hidden;
