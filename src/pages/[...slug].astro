@@ -94,8 +94,9 @@ const jsonLd = {
         <Image
           src={cover}
           alt={coverAlt ?? ''}
-          widths={[800, 1200, 1600].filter((w) => w <= cover.width)}
-          sizes="(max-width: 1040px) 100vw, 60rem"
+          widths={[800, 1200, 1600, 2000].filter((w) => w <= cover.width)}
+          sizes="(max-width: 760px) calc(100vw - 2.5rem), 42rem"
+          quality={85}
           loading="eager"
           fetchpriority="high"
         />

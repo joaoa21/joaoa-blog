@@ -20,7 +20,8 @@ const { cover, coverAlt, title, category } = post.data;
     <Image
       src={cover}
       alt={coverAlt ?? ''}
-      widths={[480, 800, 1200, 1600].filter((w) => w <= cover.width)}
+      widths={[480, 800, 1200, 1600, 2400].filter((w) => w <= cover.width)}
+      quality={85}
       sizes={sizes}
       loading={eager ? 'eager' : 'lazy'}
       fetchpriority={eager ? 'high' : 'auto'}

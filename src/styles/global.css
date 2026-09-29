@@ -844,16 +844,12 @@ a.chip:hover {
   border-radius: 14px;
 }
 
-/* capa do post: um pouco mais larga que o texto */
+/* capa do post: na largura da coluna de texto */
 .post-cover {
-  position: relative;
-  left: 50%;
-  width: min(100vw - (var(--pad) * 2), 60rem);
   margin-top: 2.4rem;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 18px;
-  transform: translateX(-50%);
+  border-radius: 16px;
 }
 
 .post-cover img {

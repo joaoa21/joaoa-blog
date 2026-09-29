@@ -3,7 +3,7 @@ title: "Botão de email que funciona no Outlook: o guia do VML"
 description: "Por que o botão do seu email quebra no Outlook para Windows e como montar um botão à prova de falhas com VML, sem perder o visual no Gmail e no Apple Mail."
 date: 2026-09-29
 category: email-html
-cover: ../../assets/covers/botao-email-outlook-vml.png
+cover: ../../assets/covers/botao-email-outlook-vml.webp
 coverAlt: "O mesmo email aberto no Gmail, com o botão preto, e no Outlook, com o botão virado um link azul, ao lado do código VML que resolve"
 tags: ["Email HTML", "CRM", "Outlook"]
 image: "/blog/og/botao-email-outlook-vml.jpg"
