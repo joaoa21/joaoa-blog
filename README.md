@@ -1,41 +1,25 @@
 # Blog — João Alberto
 
-Blog em [Astro](https://astro.build) servido em **joaoa.com.br/blog/**.
+Blog sobre design, email HTML, CRM e web, feito em **Astro** e servido em **[joaoa.com.br/blog](https://joaoa.com.br/blog/)**, com um **painel de publicação próprio que funciona sem backend**.
 
-É um projeto separado do portfólio (que continua em HTML puro), publicado como um segundo site no Netlify. O portfólio faz proxy de `/blog/*` para este site, então leitores e Google enxergam tudo no mesmo domínio.
+![Blog de João Alberto](https://joaoa.com.br/blog/og/og-blog.jpg)
 
-## Painel de publicação
+## Destaques
 
-Em **joaoa.com.br/blog/admin/** dá para criar, editar, publicar e excluir posts pelo navegador, sem servidor: a página salva direto neste repositório pela API do GitHub (um commit por publicação, com texto e capa juntos) e o Netlify publica em cerca de 1 minuto.
+- **Painel de publicação sem servidor** (`/blog/admin/`): cria, edita, publica e exclui posts pelo navegador. Ele salva direto neste repositório pela **API do GitHub** (Git Data API: blobs → tree → commit → ref), com texto e capa **num único commit**, e o Netlify publica em cerca de 1 minuto.
+  - Editor com barra de Markdown, prévia, conversão da capa para WebP no navegador, filtros por tema, status e busca, e dropdown acessível próprio.
+  - Acesso por *fine-grained token* do GitHub, guardado só no navegador de quem publica.
+- **Layout de revista:** destaque, grade por tema e páginas de tema, com capas otimizadas pelo `astro:assets` (WebP em vários tamanhos) e capa tipográfica automática quando o post não tem imagem.
+- **Tema claro e escuro** que segue o sistema, com opção de trocar manualmente e sem "piscar" ao carregar. Os blocos de código seguem o tema (Shiki com duas paletas).
+- **SEO:** canonical, Open Graph e X/Twitter por post, dados estruturados (`Blog`, `BlogPosting`, autor ligado ao `#person` do portfólio), sitemap e RSS.
+- **Mesmo domínio do portfólio:** projeto separado, servido em `/blog` por proxy do Netlify. O portfólio continua em HTML puro.
+- **Leve:** sem JavaScript de animação; o JavaScript da página é só o do tema e o do painel.
 
-- Acesso com um *fine-grained token* do GitHub com acesso só a `joaoa-blog` e permissão **Contents: Read and write**. O passo a passo está na própria página.
-- O token fica só no seu navegador (na sessão, ou salvo se marcar "Lembrar").
-- A capa enviada é convertida para WebP (até 3200 px) antes de subir.
-- O painel fica fora do Google e do sitemap.
+## Stack
 
-## Escrever um post (pelo código)
+Astro · TypeScript · JavaScript · Content Collections · astro:assets · Shiki · marked · GitHub REST API · Netlify
 
-1. Crie um arquivo em `src/content/posts/`. O nome vira o endereço: `meu-post.md` → `joaoa.com.br/blog/meu-post/`.
-2. Comece com o cabeçalho:
-
-   ```md
-   ---
-   title: "Título do post"
-   description: "Resumo de até 170 caracteres — aparece no Google e nas prévias de link."
-   date: 2026-10-15
-   tags: ["Email HTML", "CRM"]
-   image: "/blog/og/meu-post.jpg"      # opcional: imagem 1200x630 em public/og/
-   imageAlt: "Descrição da imagem"     # opcional
-   draft: true                          # opcional: não publica enquanto for true
-   ---
-   ```
-
-3. Escreva em Markdown. Títulos `##`, listas, links, `código`, blocos de código com ```html e checklist `- [ ]` já têm estilo.
-4. Para atualizar um post antigo, adicione `updated: 2026-11-02` ao cabeçalho.
-
-Rascunhos (`draft: true`) aparecem no `npm run dev`, mas não vão para o site publicado.
-
-## Rodar e publicar
+## Rodar localmente
 
 ```bash
 npm install
@@ -43,31 +27,45 @@ npm run dev        # http://localhost:4321/blog/
 npm run build      # gera dist/blog/
 ```
 
-Cada push na `main` publica no Netlify automaticamente (`netlify.toml` já configura build e pasta).
+Cada push na `main` publica no Netlify (`netlify.toml` configura build, redirecionamento e cabeçalhos).
 
-## O que já vem pronto
+## Estrutura
 
-- Mesma identidade do portfólio: fontes, cores, navegação, botões e rodapé (arquivos em `public/`).
-- SEO por página: título, descrição, canonical em `joaoa.com.br/blog/…`, Open Graph, X/Twitter e dados estruturados (`Blog` e `BlogPosting`, com o autor ligado ao `#person` do portfólio).
-- `sitemap-index.xml` e `rss.xml` gerados no build.
-- Tempo de leitura, "Continue lendo", caixa do autor e chamada para contato em cada post.
-- Página rápida: sem JavaScript de animação, só CSS.
-- Página 404 igual à do portfólio: `scripts/fetch-404.mjs` baixa `joaoa.com.br/404.html` a cada build.
+```
+src/
+  content/posts/        posts em Markdown (o nome do arquivo vira o endereço)
+  assets/covers/        capas dos posts
+  lib/                  temas (categories.ts) e utilitários de posts (posts.ts)
+  components/           cabeçalho de SEO, cards de post, capas, barra de temas
+  pages/                home, post, páginas de tema, RSS e o painel (admin/)
+  scripts/admin/        painel: cliente da API do GitHub, frontmatter, editor e dropdown
+public/                 fontes, CSS compartilhado e imagens de compartilhamento
+scripts/fetch-404.mjs   copia a 404 do portfólio a cada build
+```
 
-## Configuração (uma vez)
+## Escrever um post pelo código
 
-1. **GitHub:** crie o repositório `joaoa-blog` e envie este projeto.
-2. **Netlify:** *Add new site → Import an existing project*, escolha o repositório. Build e pasta já vêm do `netlify.toml`. Anote o endereço gerado (ex.: `joaoa-blog.netlify.app`).
-3. **Portfólio:** no `_redirects` do portfólio, **antes** da linha `/*`, adicione:
+1. Crie um arquivo em `src/content/posts/`: `meu-post.md` vira `joaoa.com.br/blog/meu-post/`.
+2. Comece com o cabeçalho:
 
+   ```md
+   ---
+   title: "Título do post"
+   description: "Resumo de até 170 caracteres — aparece no Google e nas prévias de link."
+   date: 2026-10-15
+   category: email-html            # email-html, crm, design, web ou bastidores
+   tags: ["Email HTML", "CRM"]
+   cover: ../../assets/covers/meu-post.webp   # opcional; sem capa, gera uma tipográfica
+   coverAlt: "Descrição da capa"
+   draft: true                     # opcional: não publica enquanto for true
+   ---
    ```
-   /blog/*  https://joaoa-blog.netlify.app/blog/:splat  200
-   ```
 
-   e no `robots.txt` do portfólio:
+3. Escreva em Markdown. Títulos `##`, listas, links, blocos de código e checklists `- [ ]` já têm estilo.
+4. Para atualizar um post antigo, adicione `updated: 2026-11-02`.
 
-   ```
-   Sitemap: https://joaoa.com.br/blog/sitemap-index.xml
-   ```
+Rascunhos aparecem no `npm run dev`, mas não vão para o site publicado.
 
-4. **Search Console:** envie `blog/sitemap-index.xml` em *Sitemaps*.
+---
+
+Feito por **João Alberto** — designer e desenvolvedor front-end · [joaoa.com.br](https://joaoa.com.br) · [LinkedIn](https://www.linkedin.com/in/joaoa210/)
