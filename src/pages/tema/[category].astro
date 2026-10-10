@@ -25,7 +25,7 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   url: `${site}${categoryUrl(group.slug as CategorySlug)}`,
-  name: `${group.name} — Blog de João Alberto`,
+  name: `${group.name} | Blog de João Alberto`,
   description: group.description,
   inLanguage: 'pt-BR',
   isPartOf: { '@id': `${site}/blog/#blog` },
@@ -33,7 +33,7 @@ const jsonLd = {
 };
 ---
 
-<Base title={`${group.name} — Blog de João Alberto`} description={group.description} jsonLd={jsonLd}>
+<Base title={`${group.name} | Blog de João Alberto`} description={group.description} jsonLd={jsonLd}>
   <header class="blog-head blog-head--theme container">
     <a class="back-link mono" href={import.meta.env.BASE_URL}>
       <i aria-hidden="true" class="fa-solid fa-arrow-left"></i>
