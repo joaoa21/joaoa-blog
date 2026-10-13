@@ -163,6 +163,13 @@
   width: 100%;
 }
 
+.adm-auth-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem 1.6rem;
+  margin-top: 1.4rem;
+}
+
 /* ============ CAMPOS ============ */
 .adm-field {
   display: grid;
@@ -191,6 +198,7 @@
 }
 
 .admin input[type="text"],
+.admin input[type="email"],
 .admin input[type="password"],
 .admin input[type="search"],
 .admin input[type="date"],

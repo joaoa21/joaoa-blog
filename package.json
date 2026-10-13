@@ -10,6 +10,7 @@
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
+    "@central-auth/sdk-react": "file:vendor/central-auth-sdk-react-0.4.0.tgz",
     "astro": "^7.3.5",
     "marked": "^18.0.14"
   }

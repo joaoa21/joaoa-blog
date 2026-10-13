@@ -1,15 +1,14 @@
 /* ============================================================
    PAINEL DO BLOG — interface
-   Entrar com token → lista de posts → editor → salvar/publicar.
-   Tudo acontece no navegador; o GitHub é o "banco de dados".
+   Entrar (conta do Authik) → lista de posts → editor → salvar/publicar.
+   O GitHub é o "banco de dados"; quem grava nele é o publicador.
    ============================================================ */
 import { marked } from 'marked';
-import { createClient, rawUrl, POSTS_DIR, COVERS_DIR } from './github.js';
+import { auth, createClient, POSTS_DIR, COVERS_DIR } from './publisher.js';
 import { parsePost, serializePost, slugify } from './frontmatter.js';
 import { enhanceSelect } from './select.js';
 
 const $ = (selector) => document.querySelector(selector);
-const TOKEN_KEY = 'joaoa-blog-admin-token';
 const SITE = 'https://joaoa.com.br/blog/';
 const CATEGORIES = JSON.parse(document.body.dataset.categories);
 const categoryName = (slug) => CATEGORIES.find((category) => category.slug === slug)?.name ?? slug;
@@ -20,9 +19,10 @@ let current = null; // { path, slug, isNew, data, body, cover: { bytes, url } | 
 let dirty = false;
 
 /* ---------- navegação entre telas ---------- */
+const VIEWS = ['viewLogin', 'viewSignup', 'viewForgot', 'viewReset', 'viewNotice', 'viewList', 'viewEditor'];
 function show(view) {
-  for (const id of ['viewLogin', 'viewList', 'viewEditor']) $('#' + id).hidden = id !== view;
-  $('#logout').hidden = view === 'viewLogin';
+  for (const id of VIEWS) $('#' + id).hidden = id !== view;
+  $('#logout').hidden = !client || !['viewList', 'viewEditor', 'viewNotice'].includes(view);
   window.scrollTo(0, 0);
 }
 
@@ -37,57 +37,112 @@ const today = () => {
   return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 };
 
-/* ---------- token ---------- */
-function savedToken() {
+/* ---------- conta (Authik) ---------- */
+const PASSWORD_HINT = 'A senha precisa ter pelo menos 8 caracteres, com letra, número e um caractere especial.';
+const validPassword = (value) => value.length >= 8 && /\p{L}/u.test(value) && /\d/.test(value) && /[^\p{L}\d\s]/u.test(value);
+
+function notice(title, text, { action = 'Entrar', onAction = () => go('viewLogin') } = {}) {
+  $('#noticeTitle').textContent = title;
+  $('#noticeText').textContent = text;
+  $('#noticeAction span').textContent = action;
+  $('#noticeAction').onclick = onAction;
+  show('viewNotice');
+}
+
+function go(view) {
+  for (const id of ['#loginError', '#signupError', '#forgotError', '#resetError']) status(id, '');
+  show(view);
+  $(`#${view} input`)?.focus();
+}
+
+document.querySelectorAll('[data-go]').forEach((button) => button.addEventListener('click', () => go(button.dataset.go)));
+
+/** Com a sessão do Authik aberta: confere a permissão no publicador e abre a lista. */
+async function enter() {
+  const candidate = createClient();
   try {
-    return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
-  } catch {
-    return null;
+    await candidate.check();
+  } catch (error) {
+    if (error.code === 'NOT_EDITOR') {
+      client = candidate;
+      notice('Quase lá', 'Sua conta está criada, mas ainda não tem permissão para publicar neste blog. Peça ao administrador para liberar o acesso e entre de novo.', {
+        action: 'Sair',
+        onAction: logout,
+      });
+      return;
+    }
+    throw error;
   }
-}
-
-function storeToken(token, remember) {
-  try {
-    (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, token);
-  } catch {}
-}
-
-function forgetToken() {
-  try {
-    localStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(TOKEN_KEY);
-  } catch {}
-}
-
-async function login(token, remember) {
-  const candidate = createClient(token);
-  await candidate.check();
   client = candidate;
-  if (remember !== undefined) storeToken(token, remember);
   await openList();
 }
 
 $('#loginForm').addEventListener('submit', async (event) => {
   event.preventDefault();
-  const token = $('#token').value.trim();
-  if (!token) return;
-  status('#loginError', 'Verificando…');
+  status('#loginError', 'Entrando…');
+  const result = await auth.login($('#loginEmail').value.trim(), $('#loginPassword').value);
+  if (!result.ok) {
+    status('#loginError', result.message, 'error');
+    return;
+  }
   try {
-    await login(token, $('#remember').checked);
-    $('#token').value = '';
+    $('#loginPassword').value = '';
     status('#loginError', '');
+    await enter();
   } catch (error) {
-    status('#loginError', error.status === 401 ? 'Token inválido ou expirado.' : error.message, 'error');
+    status('#loginError', error.message, 'error');
   }
 });
 
-$('#logout').addEventListener('click', () => {
+$('#signupForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const password = $('#signupPassword').value;
+  if (!validPassword(password)) return status('#signupError', PASSWORD_HINT, 'error');
+  if (password !== $('#signupPassword2').value) return status('#signupError', 'As senhas não são iguais.', 'error');
+  status('#signupError', 'Criando conta…');
+  const email = $('#signupEmail').value.trim();
+  const result = await auth.register({ name: $('#signupName').value.trim(), email, password });
+  if (!result.ok) return status('#signupError', result.message, 'error');
+  $('#signupForm').reset();
+  notice('Confira seu e-mail', `Se ${email} puder ser usado, enviamos um link de confirmação. Abra o link e depois entre por aqui.`);
+});
+
+$('#forgotForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  status('#forgotError', 'Enviando…');
+  const email = $('#forgotEmail').value.trim();
+  const result = await auth.requestPasswordReset(email);
+  if (!result.ok) return status('#forgotError', result.message, 'error');
+  notice('Confira seu e-mail', `Se existir uma conta com ${email}, enviamos um link para criar uma senha nova.`);
+});
+
+$('#resetForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const password = $('#resetPassword').value;
+  if (!validPassword(password)) return status('#resetError', PASSWORD_HINT, 'error');
+  if (password !== $('#resetPassword2').value) return status('#resetError', 'As senhas não são iguais.', 'error');
+  status('#resetError', 'Salvando…');
+  const token = new URLSearchParams(location.search).get('token') ?? '';
+  const result = await auth.resetPassword(token, password);
+  if (!result.ok) return status('#resetError', result.message, 'error');
+  leaveEmailLink();
+  notice('Senha alterada', 'Pronto. Entre com a senha nova.');
+});
+
+/** Tira o token do link do e-mail do endereço e volta para a página do painel. */
+function leaveEmailLink() {
+  history.replaceState(null, '', location.pathname.replace(/(verificar-email|redefinir-senha)\/?$/, ''));
+}
+
+async function logout() {
   if (dirty && !confirm('Há alterações não salvas. Sair mesmo assim?')) return;
-  forgetToken();
+  await auth.logout();
   client = null;
   dirty = false;
-  show('viewLogin');
-});
+  go('viewLogin');
+}
+
+$('#logout').addEventListener('click', logout);
 
 /* ---------- lista de posts ---------- */
 async function loadPosts() {
@@ -136,7 +191,7 @@ function thumbnail(post) {
   box.setAttribute('aria-hidden', 'true');
   if (post.data.cover) {
     const image = document.createElement('img');
-    image.src = rawUrl(coverRepoPath(post.data.cover));
+    client.imageUrl(coverRepoPath(post.data.cover)).then((url) => (image.src = url)).catch(() => image.dispatchEvent(new Event('error')));
     image.alt = '';
     image.loading = 'lazy';
     image.decoding = 'async';
@@ -274,7 +329,12 @@ function openEditor(post) {
   $('#coverFile').value = '';
   $('#deletePost').hidden = current.isNew;
   updateCounter();
-  showCover(data.cover ? rawUrl(coverRepoPath(data.cover)) : null);
+  showCover(null);
+  if (data.cover) {
+    const opened = current;
+    // a capa salva vem do publicador; só mostra se o post ainda for o mesmo
+    client.imageUrl(coverRepoPath(data.cover)).then((url) => current === opened && !current.cover && showCover(url)).catch(() => {});
+  }
   updateBadge();
   selectTab('write');
   status('#editorStatus', '');
@@ -572,16 +632,38 @@ $('#deletePost').addEventListener('click', async () => {
 document.querySelectorAll('.admin select').forEach(enhanceSelect);
 
 (async () => {
-  const token = savedToken();
-  if (!token) {
+  const params = new URLSearchParams(location.search);
+  const path = location.pathname;
+
+  // link "confirme seu e-mail"
+  if (/verificar-email\/?$/.test(path)) {
+    const result = await auth.verifyEmail(params.get('token') ?? '');
+    leaveEmailLink();
+    if (result.ok) notice('E-mail confirmado', 'Sua conta está ativa. Entre para continuar.');
+    else notice('Link inválido', `${result.message} Entre para receber um novo link, se for o caso.`);
+    return;
+  }
+  // link "criar senha nova"
+  if (/redefinir-senha\/?$/.test(path)) {
+    if (!params.get('token')) {
+      leaveEmailLink();
+      go('viewForgot');
+      return;
+    }
+    go('viewReset');
+    return;
+  }
+
+  // sessão do Authik ainda aberta (cookie de auth.<domínio>, 30 dias)
+  const session = await auth.getUser();
+  if (!session.ok || !session.data) {
     show('viewLogin');
     return;
   }
   try {
-    await login(token);
-  } catch {
-    forgetToken();
+    await enter();
+  } catch (error) {
     show('viewLogin');
-    status('#loginError', 'Sua sessão expirou. Entre de novo com o token.', 'error');
+    status('#loginError', error.message, 'error');
   }
 })();

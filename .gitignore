@@ -6,3 +6,6 @@ dist/
 # arquivo de pautas: só local
 PAUTAS.md
 LINKEDIN.md
+
+# endereços locais do Authik e do publicador (teste no computador)
+.env*.local
