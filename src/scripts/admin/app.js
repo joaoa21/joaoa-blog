@@ -19,7 +19,7 @@ let current = null; // { path, slug, isNew, data, body, cover: { bytes, url } | 
 let dirty = false;
 
 /* ---------- navegação entre telas ---------- */
-const VIEWS = ['viewLogin', 'viewSignup', 'viewForgot', 'viewReset', 'viewNotice', 'viewList', 'viewEditor'];
+const VIEWS = ['viewLogin', 'viewSignup', 'viewReset', 'viewNotice', 'viewList', 'viewEditor'];
 function show(view) {
   for (const id of VIEWS) $('#' + id).hidden = id !== view;
   $('#logout').hidden = !client || !['viewList', 'viewEditor', 'viewNotice'].includes(view);
@@ -50,7 +50,7 @@ function notice(title, text, { action = 'Entrar', onAction = () => go('viewLogin
 }
 
 function go(view) {
-  for (const id of ['#loginError', '#signupError', '#forgotError', '#resetError']) status(id, '');
+  for (const id of ['#loginError', '#signupError', '#resetError']) status(id, '');
   show(view);
   $(`#${view} input`)?.focus();
 }
@@ -104,17 +104,28 @@ $('#signupForm').addEventListener('submit', async (event) => {
   const result = await auth.register({ name: $('#signupName').value.trim(), email, password });
   if (!result.ok) return status('#signupError', result.message, 'error');
   $('#signupForm').reset();
+  status('#signupError', '');
+  // Sem confirmação de e-mail, o cadastro já entra; com ela, a pessoa confirma antes.
+  const session = await auth.getUser();
+  if (session.ok && session.data) {
+    try {
+      await enter();
+    } catch (error) {
+      notice('Conta criada', `${error.message} Entre de novo em instantes.`);
+    }
+    return;
+  }
   notice('Confira seu e-mail', `Se ${email} puder ser usado, enviamos um link de confirmação. Abra o link e depois entre por aqui.`);
 });
 
-$('#forgotForm').addEventListener('submit', async (event) => {
-  event.preventDefault();
-  status('#forgotError', 'Enviando…');
-  const email = $('#forgotEmail').value.trim();
-  const result = await auth.requestPasswordReset(email);
-  if (!result.ok) return status('#forgotError', result.message, 'error');
-  notice('Confira seu e-mail', `Se existir uma conta com ${email}, enviamos um link para criar uma senha nova.`);
-});
+// Sem e-mail: quem esqueceu a senha pede ao administrador um link de nova senha
+// (painel do Authik → conta → Gerar link de nova senha).
+$('#forgotHelp').addEventListener('click', () =>
+  notice('Esqueceu a senha?', 'Peça ao administrador do blog um link para criar uma senha nova. O link vale 30 minutos e abre direto nesta tela.', {
+    action: 'Voltar',
+    onAction: () => go('viewLogin'),
+  }),
+);
 
 $('#resetForm').addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -647,7 +658,7 @@ document.querySelectorAll('.admin select').forEach(enhanceSelect);
   if (/redefinir-senha\/?$/.test(path)) {
     if (!params.get('token')) {
       leaveEmailLink();
-      go('viewForgot');
+      show('viewLogin');
       return;
     }
     go('viewReset');

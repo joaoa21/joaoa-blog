@@ -58,7 +58,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           <p class="adm-error" id="loginError" role="alert"></p>
         </form>
         <p class="adm-auth-links">
-          <button class="adm-link" type="button" data-go="viewForgot">Esqueci a senha</button>
+          <button class="adm-link" type="button" id="forgotHelp">Esqueci a senha</button>
           <button class="adm-link" type="button" data-go="viewSignup">Primeiro acesso</button>
         </p>
       </section>
@@ -67,7 +67,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       <section class="adm-view adm-login" id="viewSignup" hidden>
         <p class="kicker mono"><span class="rule"></span>Primeiro acesso</p>
         <h1 class="adm-title">Criar conta<span class="dot">.</span></h1>
-        <p class="adm-text">Depois de confirmar o e-mail, peça ao administrador do blog para liberar a sua conta para publicar.</p>
+        <p class="adm-text">Depois de criar a conta, peça ao administrador do blog para liberar a sua conta para publicar.</p>
         <form class="adm-login-form" id="signupForm">
           <label class="adm-field">
             <span class="mono">Nome</span>
@@ -88,22 +88,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
           </label>
           <button class="btn" type="submit"><span>Criar conta</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></button>
           <p class="adm-error" id="signupError" role="alert"></p>
-        </form>
-        <p class="adm-auth-links"><button class="adm-link" type="button" data-go="viewLogin"><i aria-hidden="true" class="fa-solid fa-arrow-left"></i> Voltar para entrar</button></p>
-      </section>
-
-      <!-- ============ ESQUECI A SENHA ============ -->
-      <section class="adm-view adm-login" id="viewForgot" hidden>
-        <p class="kicker mono"><span class="rule"></span>Senha</p>
-        <h1 class="adm-title">Esqueci a senha<span class="dot">.</span></h1>
-        <p class="adm-text">Mandamos um link para você criar uma senha nova.</p>
-        <form class="adm-login-form" id="forgotForm">
-          <label class="adm-field">
-            <span class="mono">E-mail</span>
-            <input id="forgotEmail" type="email" autocomplete="email" required />
-          </label>
-          <button class="btn" type="submit"><span>Enviar link</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></button>
-          <p class="adm-error" id="forgotError" role="alert"></p>
         </form>
         <p class="adm-auth-links"><button class="adm-link" type="button" data-go="viewLogin"><i aria-hidden="true" class="fa-solid fa-arrow-left"></i> Voltar para entrar</button></p>
       </section>
