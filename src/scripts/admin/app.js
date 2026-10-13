@@ -5,6 +5,7 @@
    ============================================================ */
 import { marked } from 'marked';
 import { auth, createClient, POSTS_DIR, COVERS_DIR } from './publisher.js';
+import { passwordRequirements, validPassword } from '@central-auth/sdk-react/browser';
 import { parsePost, serializePost, slugify } from './frontmatter.js';
 import { enhanceSelect } from './select.js';
 
@@ -22,6 +23,7 @@ let dirty = false;
 const VIEWS = ['viewLogin', 'viewSignup', 'viewReset', 'viewNotice', 'viewList', 'viewEditor'];
 function show(view) {
   for (const id of VIEWS) $('#' + id).hidden = id !== view;
+  document.body.classList.toggle('adm-auth', AUTH_VIEWS.includes(view));
   $('#logout').hidden = !client || !['viewList', 'viewEditor', 'viewNotice'].includes(view);
   window.scrollTo(0, 0);
 }
@@ -38,8 +40,9 @@ const today = () => {
 };
 
 /* ---------- conta (Authik) ---------- */
-const PASSWORD_HINT = 'A senha precisa ter pelo menos 8 caracteres, com letra, número e um caractere especial.';
-const validPassword = (value) => value.length >= 8 && /\p{L}/u.test(value) && /\d/.test(value) && /[^\p{L}\d\s]/u.test(value);
+// Mesmo padrão das telas de entrada do Trackik: olho para mostrar a senha, regras da senha
+// marcando ao vivo (a mesma regra do servidor, vinda do SDK) e "repita a senha".
+const AUTH_VIEWS = ['viewLogin', 'viewSignup', 'viewReset', 'viewNotice'];
 
 function notice(title, text, { action = 'Entrar', onAction = () => go('viewLogin') } = {}) {
   $('#noticeTitle').textContent = title;
@@ -56,6 +59,74 @@ function go(view) {
 }
 
 document.querySelectorAll('[data-go]').forEach((button) => button.addEventListener('click', () => go(button.dataset.go)));
+
+/** Botão de enviar ocupado: desabilita e troca o texto enquanto espera o servidor. */
+function busy(form, on, label) {
+  const button = form.querySelector('[type="submit"]');
+  const text = button.querySelector('span');
+  if (on) {
+    button.dataset.label = text.textContent;
+    text.textContent = label;
+  } else if (button.dataset.label) {
+    text.textContent = button.dataset.label;
+  }
+  button.disabled = on;
+  form.setAttribute('aria-busy', String(on));
+}
+
+// olho: mostrar ou esconder a senha
+document.querySelectorAll('[data-eye]').forEach((button) => {
+  button.addEventListener('click', () => {
+    const input = button.parentElement.querySelector('input');
+    const visible = input.type === 'password';
+    input.type = visible ? 'text' : 'password';
+    button.setAttribute('aria-label', visible ? 'Ocultar senha' : 'Mostrar senha');
+    button.title = button.getAttribute('aria-label');
+    button.classList.toggle('is-visible', visible);
+  });
+});
+
+/** Senha nova com regras ao vivo e "repita a senha"; o botão só libera quando tudo confere. */
+function newPassword(form, { extra = () => true } = {}) {
+  const [password, again] = form.querySelectorAll('input[autocomplete="new-password"]');
+  const rules = form.querySelector('.auth-rules');
+  const match = form.querySelector('.auth-match');
+  const submit = form.querySelector('[type="submit"]');
+  function update() {
+    rules.replaceChildren(
+      ...passwordRequirements(password.value).map((rule) => {
+        const item = document.createElement('li');
+        item.className = rule.met ? 'is-ok' : '';
+        item.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"></svg>';
+        item.firstChild.innerHTML = rule.met
+          ? '<path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+          : '<circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-width="1.4"/>';
+        const label = document.createElement('span');
+        label.textContent = rule.label;
+        const sr = document.createElement('span');
+        sr.className = 'sr-only';
+        sr.textContent = rule.met ? ' (atendido)' : ' (pendente)';
+        label.append(sr);
+        item.append(label);
+        return item;
+      }),
+    );
+    const same = again.value.length > 0 && again.value === password.value;
+    match.hidden = again.value.length === 0;
+    match.classList.toggle('is-ok', same);
+    match.querySelector('span').textContent = same ? 'As senhas coincidem' : 'As senhas ainda não coincidem';
+    submit.disabled = !(validPassword(password.value) && same && extra());
+  }
+  form.addEventListener('input', update);
+  form.addEventListener('reset', () => setTimeout(update));
+  update();
+  return update;
+}
+
+const updateSignup = newPassword($('#signupForm'), {
+  extra: () => $('#signupName').value.trim() !== '' && $('#signupEmail').value.trim() !== '',
+});
+const updateReset = newPassword($('#resetForm'));
 
 /** Com a sessão do Authik aberta: confere a permissão no publicador e abre a lista. */
 async function enter() {
@@ -79,43 +150,48 @@ async function enter() {
 
 $('#loginForm').addEventListener('submit', async (event) => {
   event.preventDefault();
-  status('#loginError', 'Entrando…');
-  const result = await auth.login($('#loginEmail').value.trim(), $('#loginPassword').value);
-  if (!result.ok) {
-    status('#loginError', result.message, 'error');
-    return;
-  }
+  const form = event.currentTarget;
+  status('#loginError', '');
+  busy(form, true, 'Entrando…');
   try {
+    const result = await auth.login($('#loginEmail').value.trim(), $('#loginPassword').value);
+    if (!result.ok) return status('#loginError', result.message, 'error');
     $('#loginPassword').value = '';
-    status('#loginError', '');
     await enter();
   } catch (error) {
     status('#loginError', error.message, 'error');
+  } finally {
+    busy(form, false);
   }
 });
 
 $('#signupForm').addEventListener('submit', async (event) => {
   event.preventDefault();
+  const form = event.currentTarget;
   const password = $('#signupPassword').value;
-  if (!validPassword(password)) return status('#signupError', PASSWORD_HINT, 'error');
-  if (password !== $('#signupPassword2').value) return status('#signupError', 'As senhas não são iguais.', 'error');
-  status('#signupError', 'Criando conta…');
-  const email = $('#signupEmail').value.trim();
-  const result = await auth.register({ name: $('#signupName').value.trim(), email, password });
-  if (!result.ok) return status('#signupError', result.message, 'error');
-  $('#signupForm').reset();
+  if (!validPassword(password) || password !== $('#signupPassword2').value) return;
   status('#signupError', '');
-  // Sem confirmação de e-mail, o cadastro já entra; com ela, a pessoa confirma antes.
-  const session = await auth.getUser();
-  if (session.ok && session.data) {
-    try {
-      await enter();
-    } catch (error) {
-      notice('Conta criada', `${error.message} Entre de novo em instantes.`);
+  busy(form, true, 'Criando conta…');
+  const email = $('#signupEmail').value.trim();
+  try {
+    const result = await auth.register({ name: $('#signupName').value.trim(), email, password });
+    if (!result.ok) return status('#signupError', result.message, 'error');
+    form.reset();
+    // Sem confirmação de e-mail, o cadastro já entra; com ela, a pessoa confirma antes.
+    const session = await auth.getUser();
+    if (session.ok && session.data) {
+      try {
+        await enter();
+      } catch (error) {
+        notice('Conta criada', `${error.message} Entre de novo em instantes.`);
+      }
+      return;
     }
-    return;
+    notice('Confira seu e-mail', `Se ${email} puder ser usado, enviamos um link de confirmação. Abra o link e depois entre por aqui.`);
+  } finally {
+    busy(form, false);
+    updateSignup();
   }
-  notice('Confira seu e-mail', `Se ${email} puder ser usado, enviamos um link de confirmação. Abra o link e depois entre por aqui.`);
 });
 
 // Sem e-mail: quem esqueceu a senha pede ao administrador um link de nova senha
@@ -129,18 +205,25 @@ $('#forgotHelp').addEventListener('click', () =>
 
 $('#resetForm').addEventListener('submit', async (event) => {
   event.preventDefault();
+  const form = event.currentTarget;
   const password = $('#resetPassword').value;
-  if (!validPassword(password)) return status('#resetError', PASSWORD_HINT, 'error');
-  if (password !== $('#resetPassword2').value) return status('#resetError', 'As senhas não são iguais.', 'error');
-  status('#resetError', 'Salvando…');
-  const token = new URLSearchParams(location.search).get('token') ?? '';
-  const result = await auth.resetPassword(token, password);
-  if (!result.ok) return status('#resetError', result.message, 'error');
-  leaveEmailLink();
-  notice('Senha alterada', 'Pronto. Entre com a senha nova.');
+  if (!validPassword(password) || password !== $('#resetPassword2').value) return;
+  status('#resetError', '');
+  busy(form, true, 'Salvando…');
+  try {
+    const token = new URLSearchParams(location.search).get('token') ?? '';
+    const result = await auth.resetPassword(token, password);
+    if (!result.ok) return status('#resetError', result.message, 'error');
+    form.reset();
+    leaveEmailLink();
+    notice('Senha alterada', 'Pronto. Entre com a senha nova. Por segurança, as outras sessões da conta foram encerradas.');
+  } finally {
+    busy(form, false);
+    updateReset();
+  }
 });
 
-/** Tira o token do link do e-mail do endereço e volta para a página do painel. */
+/** Tira o token do link do endereço e volta para a página do painel. */
 function leaveEmailLink() {
   history.replaceState(null, '', location.pathname.replace(/(verificar-email|redefinir-senha)\/?$/, ''));
 }

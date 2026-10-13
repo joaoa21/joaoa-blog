@@ -119,55 +119,462 @@
   color: var(--fg);
 }
 
-/* ============ ENTRAR ============ */
-.adm-login {
-  max-width: 38rem;
+/* ============ ENTRAR, CRIAR CONTA E SENHA NOVA ============
+   Mesmo padrão das entradas do Trackik e do Bolão10x: cartão centralizado
+   com a marca, e o cadastro em tela dividida. Sem o cabeçalho do painel. */
+.adm-auth .adm-bar {
+  display: none;
 }
 
-.adm-help {
-  margin-top: 1.6rem;
-  padding: 1rem 1.2rem;
+.adm-auth .adm-main {
+  width: 100%;
+  padding: 0;
+}
+
+.auth {
+  position: relative;
+  display: grid;
+  min-height: 100vh;
+  min-height: 100dvh;
+  place-items: center;
+  padding: 2.5rem 1.25rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* fundo: brilho suave e grade que some nas bordas */
+.auth::before,
+.auth-side::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(40rem 26rem at 18% 12%, var(--cover-glow), transparent 70%),
+    radial-gradient(34rem 24rem at 86% 92%, var(--cover-glow), transparent 70%),
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 56px 56px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, #000 30%, transparent 100%);
+  opacity: .3;
+  pointer-events: none;
+}
+
+.auth-card {
+  width: min(100%, 26rem);
+  padding: clamp(1.6rem, 4vw, 2.2rem);
   border: 1px solid var(--line);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .35);
+}
+
+.light .auth-card {
+  box-shadow: 0 24px 60px rgba(18, 18, 18, .08);
+}
+
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .8rem;
+  margin-bottom: 1.8rem;
+  color: var(--fg);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  text-decoration: none;
+}
+
+.auth-brand img {
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
+}
+
+.auth-brand span {
+  display: grid;
+  gap: .2rem;
+  line-height: 1.1;
+}
+
+.auth-brand em {
+  color: var(--muted);
+  font-size: .62rem;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.auth-title {
+  font-size: clamp(1.6rem, 4vw, 1.9rem);
+  font-weight: 600;
+  letter-spacing: -.04em;
+  line-height: 1.1;
+}
+
+.auth-text {
+  margin-top: .6rem;
+  color: var(--soft);
+  font-size: .95rem;
+  line-height: 1.55;
+}
+
+.auth-form {
+  display: grid;
+  gap: 1.05rem;
+  margin-top: 1.6rem;
+}
+
+form.auth-card.auth-form {
+  margin-top: 0;
+}
+
+/* no cartão que é o próprio formulário, o título precisa de respiro antes do 1º campo */
+form.auth-card > .auth-title {
+  margin-bottom: .35rem;
+}
+
+.auth-field {
+  display: grid;
+  gap: .5rem;
+}
+
+.auth-label {
+  color: var(--soft);
+  font-size: .82rem;
+  font-weight: 500;
+}
+
+.auth-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin .auth input {
+  min-height: 48px;
+  padding: .75rem .95rem;
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.admin .auth input:focus {
+  border-color: var(--fg);
+  box-shadow: 0 0 0 3px var(--chip);
+}
+
+.auth-password {
+  position: relative;
+  display: block;
+}
+
+.admin .auth-password input {
+  padding-right: 3rem;
+}
+
+.auth-eye {
+  position: absolute;
+  top: 50%;
+  right: .35rem;
+  display: grid;
+  width: 2.4rem;
+  height: 2.4rem;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--muted);
+  transform: translateY(-50%);
+  transition: color .2s ease, background-color .2s ease;
+}
+
+.auth-eye:hover {
   background: var(--chip);
+  color: var(--fg);
+}
+
+.auth-eye svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.auth-eye-off,
+.auth-eye.is-visible .auth-eye-on {
+  display: none;
+}
+
+.auth-eye.is-visible .auth-eye-off {
+  display: block;
+}
+
+.auth-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  font-size: .82rem;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 4px;
+  transition: text-decoration-color .2s ease;
+}
+
+.auth-link:hover {
+  text-decoration-color: var(--fg);
+}
+
+/* regras da senha, marcando ao vivo */
+.auth-rules {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  justify-content: start;
+  gap: .35rem 1.5rem;
+  margin: .15rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.auth-rules li,
+.auth-match {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1.35;
+  white-space: nowrap;
+  transition: color .2s ease;
+}
+
+.auth-rules svg,
+.auth-match svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
+.auth-rules li.is-ok,
+.auth-match.is-ok {
+  color: var(--fg);
+}
+
+.auth-match:not(.is-ok) svg {
+  opacity: .35;
+}
+
+.auth-submit,
+.auth-secondary {
+  display: inline-flex;
+  width: 100%;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--fg);
+  border-radius: 12px;
+  background: var(--fg);
+  color: var(--bg);
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  transition: background-color .25s ease, color .25s ease, opacity .25s ease;
+}
+
+.auth-submit:not(:disabled):hover {
+  background: transparent;
+  color: var(--fg);
+}
+
+.admin .auth-submit:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+.admin .auth-form[aria-busy="true"] .auth-submit:disabled {
+  opacity: .6;
+  cursor: progress;
+}
+
+/* aviso: o botão vem logo depois do texto */
+.auth-text + .auth-submit {
+  margin-top: 1.6rem;
+}
+
+.auth-secondary {
+  border-color: var(--line);
+  background: var(--chip);
+  color: var(--fg);
+}
+
+.auth-secondary:hover {
+  border-color: var(--fg);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  margin: 1.5rem 0 1rem;
+  color: var(--muted);
+  font-size: .8rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}
+
+.auth-foot {
+  color: var(--soft);
+  font-size: .88rem;
+  text-align: center;
+}
+
+.auth-foot .auth-link {
+  font-size: inherit;
+}
+
+.auth-back {
+  display: block;
+  margin-top: 1.4rem;
+  color: var(--muted);
+  font-size: .82rem;
+  text-align: center;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+
+.auth-back:hover {
+  color: var(--fg);
+}
+
+.auth .adm-error:empty {
+  display: none;
+}
+
+/* criar conta: apresentação de um lado, formulário do outro */
+.auth--split {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  place-items: stretch;
+  padding: 0;
+}
+
+.auth--split::before {
+  content: none;
+}
+
+.auth-intro {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3rem;
+  padding: clamp(2rem, 5vw, 4rem);
+}
+
+.auth-pitch {
+  max-width: 30rem;
+  margin-bottom: auto;
+  padding-top: clamp(2rem, 12vh, 8rem);
+}
+
+.auth-pitch h2 {
+  margin-top: 1.2rem;
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 600;
+  letter-spacing: -.05em;
+  line-height: .98;
+}
+
+.auth-pitch > p:not(.kicker) {
+  margin-top: 1.2rem;
   color: var(--soft);
   line-height: 1.6;
 }
 
-.adm-help summary {
-  color: var(--fg);
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.adm-help ol {
+.auth-pitch ul {
   display: grid;
-  gap: .45rem;
-  margin-top: .8rem;
-  padding-left: 1.2rem;
+  gap: .8rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  color: var(--soft);
+  font-size: .78rem;
+  letter-spacing: .04em;
+  list-style: none;
 }
 
-.adm-help a,
-.adm-help strong {
-  color: var(--fg);
-}
-
-.adm-login-form {
-  display: grid;
-  gap: 1.1rem;
-  justify-items: start;
-  margin-top: 2rem;
-}
-
-.adm-login-form .adm-field {
-  width: 100%;
-}
-
-.adm-auth-links {
+.auth-pitch li {
   display: flex;
-  flex-wrap: wrap;
-  gap: .4rem 1.6rem;
-  margin-top: 1.4rem;
+  align-items: center;
+  gap: .7rem;
+}
+
+.auth-pitch li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--fg);
+}
+
+.auth-side {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border-left: 1px solid var(--line);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .auth--split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .auth-intro {
+    gap: 0;
+    padding-bottom: 0;
+  }
+
+  .auth-intro .auth-brand {
+    margin-bottom: 0;
+  }
+
+  .auth-pitch {
+    padding-top: 2rem;
+  }
+
+  .auth-pitch h2 {
+    font-size: clamp(2rem, 9vw, 2.6rem);
+  }
+
+  .auth-pitch ul {
+    display: none;
+  }
+
+  .auth-side {
+    border-left: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .auth-rules {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* ============ CAMPOS ============ */

@@ -6,6 +6,8 @@
 import '../styles/global.css';
 import '../styles/admin.css';
 import { CATEGORIES } from '../lib/categories';
+import EyeButton from './admin/EyeButton.astro';
+import Check from './admin/Check.astro';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
@@ -41,82 +43,130 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
     <main class="adm-main">
       <!-- ============ ENTRAR ============ -->
-      <section class="adm-view adm-login" id="viewLogin" hidden>
-        <p class="kicker mono"><span class="rule"></span>Acesso</p>
-        <h1 class="adm-title">Painel do blog<span class="dot">.</span></h1>
-        <p class="adm-text">Entre com a sua conta para escrever e publicar posts. O site é atualizado em cerca de um minuto depois de publicar.</p>
-        <form class="adm-login-form" id="loginForm">
-          <label class="adm-field">
-            <span class="mono">E-mail</span>
-            <input id="loginEmail" type="email" autocomplete="username" required />
-          </label>
-          <label class="adm-field">
-            <span class="mono">Senha</span>
-            <input id="loginPassword" type="password" autocomplete="current-password" required />
-          </label>
-          <button class="btn" type="submit"><span>Entrar</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></button>
-          <p class="adm-error" id="loginError" role="alert"></p>
-        </form>
-        <p class="adm-auth-links">
-          <button class="adm-link" type="button" id="forgotHelp">Esqueci a senha</button>
-          <button class="adm-link" type="button" data-go="viewSignup">Primeiro acesso</button>
-        </p>
+      <section class="adm-view auth" id="viewLogin" hidden>
+        <div class="auth-card">
+          <a class="auth-brand" href={`${base}/`}>
+            <img src={`${base}/favicon.svg`} alt="" width="44" height="44" />
+            <span>João Alberto <em class="mono">Painel do blog</em></span>
+          </a>
+          <h1 class="auth-title">Entrar no painel</h1>
+          <p class="auth-text">Escreva, revise e publique os posts do blog.</p>
+          <form class="auth-form" id="loginForm">
+            <label class="auth-field">
+              <span class="auth-label">E-mail</span>
+              <input id="loginEmail" type="email" autocomplete="username" maxlength="254" required />
+            </label>
+            <div class="auth-field">
+              <div class="auth-label-row">
+                <label class="auth-label" for="loginPassword">Senha</label>
+                <button class="auth-link" type="button" id="forgotHelp">Esqueci minha senha</button>
+              </div>
+              <span class="auth-password">
+                <input id="loginPassword" type="password" autocomplete="current-password" maxlength="128" required />
+                <EyeButton />
+              </span>
+            </div>
+            <p class="adm-error" id="loginError" role="alert"></p>
+            <button class="auth-submit" type="submit"><span>Entrar</span></button>
+          </form>
+          <div class="auth-divider"><span>Primeiro acesso?</span></div>
+          <button class="auth-secondary" type="button" data-go="viewSignup">Criar conta</button>
+          <a class="auth-back" href={`${base}/`}>← Voltar ao blog</a>
+        </div>
       </section>
 
       <!-- ============ PRIMEIRO ACESSO ============ -->
-      <section class="adm-view adm-login" id="viewSignup" hidden>
-        <p class="kicker mono"><span class="rule"></span>Primeiro acesso</p>
-        <h1 class="adm-title">Criar conta<span class="dot">.</span></h1>
-        <p class="adm-text">Depois de criar a conta, peça ao administrador do blog para liberar a sua conta para publicar.</p>
-        <form class="adm-login-form" id="signupForm">
-          <label class="adm-field">
-            <span class="mono">Nome</span>
-            <input id="signupName" type="text" autocomplete="name" maxlength="100" required />
-          </label>
-          <label class="adm-field">
-            <span class="mono">E-mail</span>
-            <input id="signupEmail" type="email" autocomplete="email" required />
-          </label>
-          <label class="adm-field">
-            <span class="mono">Senha</span>
-            <input id="signupPassword" type="password" autocomplete="new-password" required />
-            <small>Pelo menos 8 caracteres, com letra, número e um caractere especial.</small>
-          </label>
-          <label class="adm-field">
-            <span class="mono">Repita a senha</span>
-            <input id="signupPassword2" type="password" autocomplete="new-password" required />
-          </label>
-          <button class="btn" type="submit"><span>Criar conta</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></button>
-          <p class="adm-error" id="signupError" role="alert"></p>
-        </form>
-        <p class="adm-auth-links"><button class="adm-link" type="button" data-go="viewLogin"><i aria-hidden="true" class="fa-solid fa-arrow-left"></i> Voltar para entrar</button></p>
+      <section class="adm-view auth auth--split" id="viewSignup" hidden>
+        <div class="auth-intro">
+          <a class="auth-brand" href={`${base}/`}>
+            <img src={`${base}/favicon.svg`} alt="" width="44" height="44" />
+            <span>João Alberto <em class="mono">Painel do blog</em></span>
+          </a>
+          <div class="auth-pitch">
+            <p class="kicker mono"><span class="rule"></span>Primeiro acesso</p>
+            <h2>Escreva para o blog<span class="dot">.</span></h2>
+            <p>Crie sua conta e peça ao administrador para liberar a publicação.</p>
+            <ul class="mono">
+              <li>Editor em Markdown com pré-visualização</li>
+              <li>Capa convertida para WebP sozinha</li>
+              <li>Rascunho e publicação em um clique</li>
+            </ul>
+          </div>
+        </div>
+        <div class="auth-side">
+          <form class="auth-card auth-form" id="signupForm">
+            <h1 class="auth-title">Criar sua conta</h1>
+            <label class="auth-field">
+              <span class="auth-label">Seu nome</span>
+              <input id="signupName" type="text" autocomplete="name" maxlength="100" required />
+            </label>
+            <label class="auth-field">
+              <span class="auth-label">E-mail</span>
+              <input id="signupEmail" type="email" autocomplete="email" maxlength="254" required />
+            </label>
+            <div class="auth-field">
+              <label class="auth-label" for="signupPassword">Senha</label>
+              <span class="auth-password">
+                <input id="signupPassword" type="password" autocomplete="new-password" maxlength="128" required aria-describedby="signupRules" />
+                <EyeButton />
+              </span>
+              <ul class="auth-rules" id="signupRules" aria-label="Requisitos da senha" aria-live="polite"></ul>
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" for="signupPassword2">Repita a senha</label>
+              <span class="auth-password">
+                <input id="signupPassword2" type="password" autocomplete="new-password" maxlength="128" required />
+                <EyeButton />
+              </span>
+              <p class="auth-match" aria-live="polite" hidden><Check /><span></span></p>
+            </div>
+            <p class="adm-error" id="signupError" role="alert"></p>
+            <button class="auth-submit" type="submit" disabled><span>Criar conta</span></button>
+            <p class="auth-foot">Já tem uma conta? <button class="auth-link" type="button" data-go="viewLogin">Entrar</button></p>
+          </form>
+        </div>
       </section>
 
-      <!-- ============ NOVA SENHA (link do e-mail) ============ -->
-      <section class="adm-view adm-login" id="viewReset" hidden>
-        <p class="kicker mono"><span class="rule"></span>Senha</p>
-        <h1 class="adm-title">Nova senha<span class="dot">.</span></h1>
-        <form class="adm-login-form" id="resetForm">
-          <label class="adm-field">
-            <span class="mono">Nova senha</span>
-            <input id="resetPassword" type="password" autocomplete="new-password" required />
-            <small>Pelo menos 8 caracteres, com letra, número e um caractere especial.</small>
-          </label>
-          <label class="adm-field">
-            <span class="mono">Repita a senha</span>
-            <input id="resetPassword2" type="password" autocomplete="new-password" required />
-          </label>
-          <button class="btn" type="submit"><span>Salvar senha</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></button>
+      <!-- ============ NOVA SENHA (link do administrador) ============ -->
+      <section class="adm-view auth" id="viewReset" hidden>
+        <form class="auth-card auth-form" id="resetForm">
+          <a class="auth-brand" href={`${base}/`}>
+            <img src={`${base}/favicon.svg`} alt="" width="44" height="44" />
+            <span>João Alberto <em class="mono">Painel do blog</em></span>
+          </a>
+          <h1 class="auth-title">Criar senha nova</h1>
+          <div class="auth-field">
+            <label class="auth-label" for="resetPassword">Senha nova</label>
+            <span class="auth-password">
+              <input id="resetPassword" type="password" autocomplete="new-password" maxlength="128" required aria-describedby="resetRules" />
+              <EyeButton />
+            </span>
+            <ul class="auth-rules" id="resetRules" aria-label="Requisitos da senha" aria-live="polite"></ul>
+          </div>
+          <div class="auth-field">
+            <label class="auth-label" for="resetPassword2">Repita a senha</label>
+            <span class="auth-password">
+              <input id="resetPassword2" type="password" autocomplete="new-password" maxlength="128" required />
+              <EyeButton />
+            </span>
+            <p class="auth-match" aria-live="polite" hidden><Check /><span></span></p>
+          </div>
           <p class="adm-error" id="resetError" role="alert"></p>
+          <button class="auth-submit" type="submit" disabled><span>Salvar senha nova</span></button>
         </form>
       </section>
 
-      <!-- ============ AVISOS (e-mail confirmado, conta sem permissão…) ============ -->
-      <section class="adm-view adm-login" id="viewNotice" hidden>
-        <p class="kicker mono"><span class="rule"></span>Acesso</p>
-        <h1 class="adm-title" id="noticeTitle"></h1>
-        <p class="adm-text" id="noticeText"></p>
-        <p class="adm-auth-links"><button class="btn" type="button" id="noticeAction"><span>Entrar</span><i aria-hidden="true" class="fa-solid fa-arrow-right"></i></button></p>
+      <!-- ============ AVISOS (conta sem permissão, senha alterada…) ============ -->
+      <section class="adm-view auth" id="viewNotice" hidden>
+        <div class="auth-card">
+          <a class="auth-brand" href={`${base}/`}>
+            <img src={`${base}/favicon.svg`} alt="" width="44" height="44" />
+            <span>João Alberto <em class="mono">Painel do blog</em></span>
+          </a>
+          <h1 class="auth-title" id="noticeTitle"></h1>
+          <p class="auth-text" id="noticeText"></p>
+          <button class="auth-submit" type="button" id="noticeAction"><span>Entrar</span></button>
+        </div>
       </section>
 
       <!-- ============ LISTA ============ -->
