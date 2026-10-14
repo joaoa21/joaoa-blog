@@ -74,3 +74,5 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 <!-- Analytics apenas no domínio publicado: não conta testes locais nem deploy previews. -->
 <script is:inline>if(/^(www\.)?joaoa\.com\.br$/.test(location.hostname)){const s=document.createElement("script");s.src="https://analytics-hub-production-9abd.up.railway.app/t.js";s.dataset.key="pk_J6q-HyvEwzSgOsFA5fSfirbjriPcvcSf";s.defer=true;document.head.appendChild(s);}</script>
+<!-- aviso de cookies do Trackik: o mesmo arquivo do portfólio (mesmo endereço, a escolha vale nos dois) -->
+<script is:inline defer src="/assets/js/cookies.js"></script>
