@@ -2,6 +2,7 @@
 /* Home do blog em formato de revista. O layout cresce com o conteúdo:
    1 post → só o destaque; até 5 → destaque + laterais; mais → "Mais recentes";
    temas com 2+ posts ganham seção própria. */
+import { breadcrumbs } from '../lib/breadcrumbs';
 import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
 import ThemeBar from '../components/ThemeBar.astro';
@@ -17,13 +18,12 @@ const groups = groupByCategory(posts);
 const themeSections = groups.filter((group) => group.posts.length >= 2);
 const site = 'https://joaoa.com.br';
 
-const jsonLd = {
-  '@context': 'https://schema.org',
+const blog = {
   '@type': 'Blog',
   '@id': `${site}/blog/#blog`,
   url: `${site}/blog/`,
   name: 'Blog de João Alberto',
-  description: 'Design digital, email HTML, CRM, identidade visual e web, na prática.',
+  description: 'Criação de sites, design digital, email HTML, CRM e identidade visual, na prática.',
   inLanguage: 'pt-BR',
   author: { '@id': `${site}/#person` },
   publisher: { '@id': `${site}/#person` },
@@ -35,11 +35,16 @@ const jsonLd = {
     datePublished: post.data.date.toISOString(),
   })),
 };
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [blog, breadcrumbs([])],
+};
 ---
 
 <Base
   title="Blog | João Alberto"
-  description="Design digital, email HTML, CRM, identidade visual e web, na prática: bastidores de projetos e soluções do dia a dia de um web designer."
+  description="Criação de sites, design digital, email HTML, CRM e identidade visual, na prática: bastidores de projetos e soluções do dia a dia de um web designer."
   jsonLd={jsonLd}
 >
   <header class="blog-head container">

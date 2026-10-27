@@ -5,6 +5,7 @@ import PostCard from '../../components/PostCard.astro';
 import ThemeBar from '../../components/ThemeBar.astro';
 import { getPosts, groupByCategory, postUrl } from '../../lib/posts';
 import { categoryUrl, type CategorySlug } from '../../lib/categories';
+import { breadcrumbs } from '../../lib/breadcrumbs';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -21,8 +22,7 @@ const { group, groups } = Astro.props;
 const site = 'https://joaoa.com.br';
 const [first, ...others] = group.posts;
 
-const jsonLd = {
-  '@context': 'https://schema.org',
+const collection = {
   '@type': 'CollectionPage',
   url: `${site}${categoryUrl(group.slug as CategorySlug)}`,
   name: `${group.name} | Blog de João Alberto`,
@@ -30,6 +30,11 @@ const jsonLd = {
   inLanguage: 'pt-BR',
   isPartOf: { '@id': `${site}/blog/#blog` },
   hasPart: group.posts.map((post) => ({ '@type': 'BlogPosting', headline: post.data.title, url: `${site}${postUrl(post)}` })),
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [collection, breadcrumbs([[group.name, categoryUrl(group.slug as CategorySlug)]])],
 };
 ---
 

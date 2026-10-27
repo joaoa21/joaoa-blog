@@ -5,6 +5,7 @@ import Base from '../layouts/Base.astro';
 import PostCard from '../components/PostCard.astro';
 import { getPosts, formatDate, postUrl, readingTime, type Post } from '../lib/posts';
 import { getCategory, categoryUrl } from '../lib/categories';
+import { breadcrumbs } from '../lib/breadcrumbs';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -37,8 +38,7 @@ const url = `${site}${postUrl(post)}`;
 const shareImage = image ?? (cover ? (await getImage({ src: cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' })).src : undefined);
 const shareAlt = imageAlt ?? coverAlt ?? title;
 
-const jsonLd = {
-  '@context': 'https://schema.org',
+const posting = {
   '@type': 'BlogPosting',
   '@id': `${url}#post`,
   headline: title,
@@ -54,6 +54,11 @@ const jsonLd = {
   author: { '@type': 'Person', '@id': `${site}/#person`, name: 'João Alberto', url: `${site}/` },
   publisher: { '@id': `${site}/#person` },
   isPartOf: { '@id': `${site}/blog/#blog` },
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [posting, breadcrumbs([[theme.name, categoryUrl(category)], [title, postUrl(post)]])],
 };
 ---
 
