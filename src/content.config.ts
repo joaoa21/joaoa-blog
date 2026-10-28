@@ -10,6 +10,8 @@ const posts = defineCollection({
   schema: ({ image }) =>
     z.object({
       title: z.string(),
+      // título curto só para o Google e o compartilhamento (até 60 caracteres), quando o título do post é longo
+      seoTitle: z.string().max(60).optional(),
       description: z.string().max(170),
       date: z.coerce.date(),
       updated: z.coerce.date().optional(),

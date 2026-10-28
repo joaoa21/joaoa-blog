@@ -2,8 +2,8 @@
    Só os formatos que o próprio blog usa: textos entre aspas, datas,
    booleanos e a lista de tags. Campos desconhecidos são preservados. */
 
-const ORDER = ['title', 'description', 'date', 'updated', 'category', 'tags', 'cover', 'coverAlt', 'featured', 'image', 'imageAlt', 'draft'];
-const QUOTED = new Set(['title', 'description', 'coverAlt', 'image', 'imageAlt']);
+const ORDER = ['title', 'seoTitle', 'description', 'date', 'updated', 'category', 'tags', 'cover', 'coverAlt', 'featured', 'image', 'imageAlt', 'draft'];
+const QUOTED = new Set(['title', 'seoTitle', 'description', 'coverAlt', 'image', 'imageAlt']);
 
 function parseValue(raw) {
   const value = raw.trim();

@@ -1,5 +1,6 @@
 ---
 title: "Como desenhar missões e torneios que o jogador quer completar"
+seoTitle: "Missões e torneios que o jogador quer completar"
 description: "Gamificação não é só coisa de aposta: de e-commerces a apps de delivery, o design faz a mecânica ser entendida, desejada e acompanhada."
 date: 2026-09-29
 category: crm

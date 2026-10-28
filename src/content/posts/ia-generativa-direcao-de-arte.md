@@ -1,5 +1,6 @@
 ---
 title: "IA generativa na direção de arte: onde ajuda e onde atrapalha"
+seoTitle: "IA generativa na direção de arte: onde ajuda e atrapalha"
 description: "Como usar IA para criar imagens e key visuals sem perder a consistência da marca: onde ela acelera, onde tropeça e um fluxo que funciona."
 date: 2026-09-29
 category: design

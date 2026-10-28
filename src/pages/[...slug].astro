@@ -29,8 +29,11 @@ interface Props {
 
 const { post, others } = Astro.props;
 const { Content } = await render(post);
-const { title, description, date, updated, tags, image, imageAlt, cover, coverAlt, category } = post.data;
+const { title, seoTitle, description, date, updated, tags, image, imageAlt, cover, coverAlt, category } = post.data;
 const theme = getCategory(category);
+// O Google corta títulos acima de uns 60 caracteres: o " | João Alberto" só entra quando cabe
+const SUFFIX = ' | João Alberto';
+const pageTitle = seoTitle ?? (title.length + SUFFIX.length <= 60 ? title + SUFFIX : title);
 const site = 'https://joaoa.com.br';
 const url = `${site}${postUrl(post)}`;
 
@@ -63,7 +66,7 @@ const jsonLd = {
 ---
 
 <Base
-  title={`${title} | João Alberto`}
+  title={pageTitle}
   description={description}
   image={shareImage}
   imageAlt={shareAlt}
