@@ -10,9 +10,10 @@ interface Props {
   published?: Date;
   updated?: Date;
   jsonLd?: Record<string, unknown>;
+  noindex?: boolean;
 }
 
-const { title, description, image, imageAlt, type = 'website', published, updated, jsonLd } = Astro.props;
+const { title, description, image, imageAlt, type = 'website', published, updated, jsonLd, noindex = false } = Astro.props;
 
 const site = 'https://joaoa.com.br';
 const canonical = new URL(Astro.url.pathname, site).href;
@@ -26,7 +27,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
-<meta name="robots" content="index, follow, max-image-preview:large" />
+<meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
 <meta name="theme-color" content="#0f0f0f" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#f2f0eb" media="(prefers-color-scheme: light)" />
 <meta name="color-scheme" content="dark light" />

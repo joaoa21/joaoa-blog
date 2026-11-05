@@ -1,5 +1,6 @@
 ---
 title: "Por que seu site está lento: as 5 causas mais comuns"
+seoTitle: "Site lento? As 5 causas mais comuns e como resolver"
 description: "Imagens, fontes, scripts, ícones e animações: o que mais pesa num site, como descobrir o culpado e o que eu mudei no meu para subir a nota do PageSpeed."
 date: 2026-10-13
 category: web
