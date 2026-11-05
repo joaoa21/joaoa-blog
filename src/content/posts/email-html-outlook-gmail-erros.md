@@ -7,7 +7,6 @@ category: email-html
 tags: ["Email HTML","Outlook","Gmail"]
 cover: ../../assets/covers/email-html-outlook-gmail-erros.webp
 coverAlt: "O mesmo email em duas janelas: no Gmail, aparece cortado com o aviso de mensagem cortada; no Outlook, o layout está desmontado, com a fonte trocada e o botão virado link"
-draft: true
 ---
 
 O email fica certo na prévia, e aí alguém abre no Outlook e as colunas estão desmontadas, a fonte virou Times New Roman e a imagem estourou a tela. No Gmail, o rodapé sumiu e apareceu um aviso de mensagem cortada.

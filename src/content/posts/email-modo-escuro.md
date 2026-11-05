@@ -75,6 +75,8 @@ Não dá para confiar só na prévia do editor. Antes de enviar:
 - Se puder, use uma ferramenta de teste como Litmus ou Email on Acid, que mostram dezenas de programas nos dois temas de uma vez.
 - Olhe especialmente a logo, os botões e as imagens com texto.
 
+Para os outros problemas do Outlook e do Gmail, veja [os erros mais comuns do email HTML](/blog/email-html-outlook-gmail-erros/).
+
 ## Checklist antes de enviar
 
 - [ ] `color-scheme` declarado no `<head>`.

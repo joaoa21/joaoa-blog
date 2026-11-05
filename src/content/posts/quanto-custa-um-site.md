@@ -7,7 +7,6 @@ category: web
 tags: ["Criação de sites","Landing page","Orçamento"]
 cover: ../../assets/covers/quanto-custa-um-site.webp
 coverAlt: "Uma proposta com escopo, prazo e valor ao lado de uma lista do que muda o preço de um site: páginas, design, conteúdo, funções e manutenção"
-draft: true
 ---
 
 "Quanto custa um site?" é uma pergunta justa, e quase toda resposta honesta começa com "depende". Parece desculpa, mas dois projetos chamados de "site" podem ter pouco em comum: um é uma página simples montada em modelo pronto, o outro é uma loja com integrações, feita do zero.

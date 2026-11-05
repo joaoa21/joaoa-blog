@@ -91,6 +91,8 @@ E, dentro do `<head>`, este bloco evita que o Outlook distorça tamanhos em tela
 
 O **novo Outlook para Windows**, o Outlook na web e o Outlook para Mac usam um navegador por baixo dos panos, então mostram a versão HTML normalmente. O VML continua necessário porque uma parte grande das empresas ainda usa o Outlook clássico no computador. E, em campanha de CRM, esse público costuma ser justamente o corporativo.
 
+Para os outros problemas do Outlook e do Gmail, veja [os erros mais comuns do email HTML](/blog/email-html-outlook-gmail-erros/).
+
 ## Checklist antes de enviar
 
 - [ ] As duas versões do botão têm **o mesmo link**, a mesma cor e o mesmo texto.
