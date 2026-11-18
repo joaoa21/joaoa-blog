@@ -1,5 +1,6 @@
 ---
 title: "WebP, PNG ou JPG: qual formato usar em cada imagem do site"
+seoTitle: "WebP, PNG ou JPG? Qual formato usar em cada imagem"
 description: "Quando cada formato vale a pena, como reduzir o peso sem perder qualidade e por que o email é a exceção à regra do WebP."
 date: 2026-09-29
 category: web

@@ -1,6 +1,6 @@
 ---
 title: "Site institucional ou landing page: qual a sua empresa precisa?"
-seoTitle: "Site institucional ou landing page: qual escolher?"
+seoTitle: "Site institucional ou landing page: qual vende mais?"
 description: "Site institucional apresenta a empresa inteira; landing page vende uma coisa só. A diferença, quando usar cada um e quando vale a pena ter os dois."
 date: 2026-10-28
 category: web
